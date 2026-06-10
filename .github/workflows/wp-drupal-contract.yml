@@ -1,0 +1,95 @@
+# WordPress/Drupal assistant contract gate.
+#
+# This repo is the canonical home of the wp-drupal-assistant wire contract
+# (shared with @cinatra-ai/drupal-assistant-connector and consumed by the
+# cinatra-ai/wordpress-plugin + cinatra-ai/drupal-module CMS clients). This
+# workflow:
+#
+#   1. runs the contract test suite (schema + golden-fixture conformance) on
+#      every PR/push — the standard ci.yml skips standalone tests for
+#      first-party source mirrors, so the contract tests get their own
+#      dedicated, dependency-pinned run here;
+#   2. deep-compares cinatra core's ENFORCED auth-init schema copy
+#      (cinatra-ai/cinatra: src/lib/wp-drupal-auth-init.schema.json) against
+#      the canonical v1/auth-init.schema.json in this repo, so the runtime
+#      validator and the canonical contract cannot drift silently. A weekly
+#      scheduled run additionally catches core-side drift between PRs here.
+
+name: WP/Drupal Contract Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 6 * * 1" # weekly core-drift check (06:00 UTC Monday)
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wp-drupal-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: "24"
+      - name: Install test dependencies (ephemeral)
+        # This repo is a first-party source mirror (no lockfile; the cinatra
+        # monorepo provides its optional @cinatra-ai/* peers and clones this
+        # repo into its workspace, where the monorepo lockfile must keep
+        # matching this package.json — so test-only deps are installed
+        # ephemerally here instead of being declared as devDependencies).
+        # The contract tests are deliberately standalone: vitest +
+        # @cfworker/json-schema only.
+        run: npm install --no-save --no-package-lock --no-audit --no-fund vitest@4.1.6 "@cfworker/json-schema@4.1.1"
+      - name: Contract schema + fixture conformance tests
+        run: npx vitest run tests/contracts --no-coverage
+
+      - name: Checkout cinatra core (enforced-copy lock-step)
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          repository: cinatra-ai/cinatra
+          path: .cinatra-core
+      - name: Core's enforced auth-init schema matches the canonical contract
+        # Canonical-first ordering (deadlock-free with core's reciprocal gate):
+        #   - a PR HERE that changes the canonical v1 auth-init schema skips the
+        #     cross-repo compare (core follows up; core's own lock-step gate +
+        #     the scheduled/push runs here enforce convergence);
+        #   - push-to-main + the weekly schedule always compare, so unresolved
+        #     drift goes red here until core lands the follow-up;
+        #   - a missing enforced copy in core means core has not adopted the
+        #     enforced-copy scheme on its default branch yet — skip with notice.
+        run: |
+          set -euo pipefail
+          ENFORCED=.cinatra-core/src/lib/wp-drupal-auth-init.schema.json
+          CANONICAL=contracts/wp-drupal-assistant/v1/auth-init.schema.json
+          if [ ! -f "$ENFORCED" ]; then
+            echo "::notice::cinatra core's default branch does not carry the enforced schema copy yet — skipping the lock-step compare."
+            exit 0
+          fi
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch -q --depth=1 origin "${{ github.base_ref }}"
+            if ! git diff --quiet FETCH_HEAD HEAD -- "$CANONICAL"; then
+              echo "::notice::this PR changes the canonical v1 auth-init schema — canonical-first ordering: cinatra core must follow with its enforced copy (core's lock-step gate + the scheduled run here enforce convergence)."
+              exit 0
+            fi
+          fi
+          node --input-type=module -e "
+            import { readFileSync } from 'node:fs';
+            import assert from 'node:assert/strict';
+            const canonical = JSON.parse(readFileSync('$CANONICAL', 'utf8'));
+            const enforced = JSON.parse(readFileSync('$ENFORCED', 'utf8'));
+            assert.deepEqual(
+              enforced,
+              canonical,
+              'cinatra core src/lib/wp-drupal-auth-init.schema.json has drifted from the canonical v1/auth-init.schema.json — update both sides together (see contracts/wp-drupal-assistant/README.md).',
+            );
+            console.log('OK: core enforced copy matches canonical v1 auth-init schema.');
+          "
