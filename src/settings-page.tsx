@@ -6,19 +6,16 @@ import { Input } from "./components/ui/input";
 import { FieldGroup, Field, FieldLabel } from "./components/ui/field";
 import { Main, PageHeader, PageContent } from "@cinatra-ai/sdk-ui/marketplace";
 import { requireExtensionAction } from "@cinatra-ai/sdk-extensions";
+// Every host surface arrives through the host-bound deps slot (cinatra#172
+// Stage H3): widget auth-config from `@cinatra-ai/host:wordpress-widget-auth`,
+// the instance reads + remote webhook-subscription client + MCP adapter
+// status from `@cinatra-ai/host:wordpress-mcp` — no `@/lib/*` import. The
+// "use server" actions CANNOT close over the render-time ctx, hence the slot.
 import {
-  generateWidgetAuthConfig,
-  readWidgetAuthConfig,
-} from "@/lib/wordpress-widget-auth";
-import {
-  getWordPressAPISettings,
-  readWordPressInstanceById,
-  listWordPressWebhookSubscriptions,
-  registerWordPressWebhookSubscription,
-  deleteWordPressWebhookSubscription,
+  getWordPressAssistantDeps,
+  type WordPressMcpAdapterStatus,
   type WordPressWebhookSubscription,
-} from "@/lib/wordpress-api";
-import { resolveWordPressMcpEndpoint, probeWordPressInstanceMcpAdapter, isPrivateUrl, type WordPressMcpAdapterStatus } from "@/lib/wordpress-mcp-connection";
+} from "./deps";
 import { Badge } from "./components/ui/badge";
 import { CopyButton } from "./copy-button";
 
@@ -28,14 +25,14 @@ export const metadata: Metadata = { title: "WordPress Widget | Cinatra" };
 async function generateCredentialsAction() {
   "use server";
   await requireExtensionAction("@cinatra-ai/wordpress-assistant-connector", "manage");
-  generateWidgetAuthConfig();
+  getWordPressAssistantDeps().generateWidgetAuthConfig();
   revalidatePath("/connectors/cinatra-ai/wordpress-assistant-connector/setup");
 }
 
 async function registerWebhooksAction(instanceId: string) {
   "use server";
   await requireExtensionAction("@cinatra-ai/wordpress-assistant-connector", "manage");
-  const instance = readWordPressInstanceById(instanceId);
+  const instance = getWordPressAssistantDeps().readInstanceById(instanceId);
   if (!instance) {
     throw new Error("WordPress instance not found.");
   }
@@ -44,7 +41,7 @@ async function registerWebhooksAction(instanceId: string) {
     process.env.BETTER_AUTH_URL ??
     "http://localhost:3000";
   const targetUrl = `${cinatraUrl.replace(/\/+$/, "")}/api/webhooks/wordpress`;
-  await registerWordPressWebhookSubscription(instance, {
+  await getWordPressAssistantDeps().registerWebhookSubscription(instance, {
     event_type: "post_published",
     target_url: targetUrl,
     post_types: [],
@@ -55,11 +52,11 @@ async function registerWebhooksAction(instanceId: string) {
 async function deleteWebhookSubscriptionAction(instanceId: string, subscriptionId: string) {
   "use server";
   await requireExtensionAction("@cinatra-ai/wordpress-assistant-connector", "manage");
-  const instance = readWordPressInstanceById(instanceId);
+  const instance = getWordPressAssistantDeps().readInstanceById(instanceId);
   if (!instance) {
     throw new Error("WordPress instance not found.");
   }
-  await deleteWordPressWebhookSubscription(instance, subscriptionId);
+  await getWordPressAssistantDeps().removeWebhookSubscription(instance, subscriptionId);
   revalidatePath("/connectors/cinatra-ai/wordpress-assistant-connector/setup");
 }
 
@@ -68,7 +65,7 @@ export async function WordPressAssistantSettingsPage() {
   // load (the idempotent auto-register below), so it is a mutating surface and
   // must gate on manage rights, not mere read visibility.
   await requireExtensionAction("@cinatra-ai/wordpress-assistant-connector", "manage");
-  const config = readWidgetAuthConfig();
+  const config = getWordPressAssistantDeps().readWidgetAuthConfig();
   const cinatraUrl =
     process.env.NEXT_PUBLIC_APP_URL ??
     process.env.BETTER_AUTH_URL ??
@@ -80,11 +77,11 @@ export async function WordPressAssistantSettingsPage() {
   // Auto-register webhooks for all configured instances on every page load.
   // The WP endpoint returns 409 on duplicate — treated as success — so this is idempotent.
   // Errors are swallowed; the "Register webhooks" button remains as manual retry fallback.
-  const { instances: instancesForAutoReg } = getWordPressAPISettings();
+  const instancesForAutoReg = getWordPressAssistantDeps().listInstances();
   const targetUrlForAutoReg = `${cinatraUrl.replace(/\/+$/, "")}/api/webhooks/wordpress`;
   await Promise.allSettled(
     instancesForAutoReg.map((instance) =>
-      registerWordPressWebhookSubscription(instance, {
+      getWordPressAssistantDeps().registerWebhookSubscription(instance, {
         event_type: "post_published",
         target_url: targetUrlForAutoReg,
         post_types: [],
@@ -213,7 +210,7 @@ export async function WordPressAssistantSettingsPage() {
 
 async function McpAdapterStatusHint({ status, siteUrl }: { status: WordPressMcpAdapterStatus; siteUrl: string }) {
   if (status === "registered") {
-    if (isPrivateUrl(siteUrl)) {
+    if (getWordPressAssistantDeps().isPrivateUrl(siteUrl)) {
       return (
         <p className="text-xs text-muted-foreground">
           Local/private URL — plugin is reachable but agents cannot use it because external LLM providers cannot connect to private addresses. Use a public URL or tunnel (e.g. Cloudflare Tunnel) to enable agent access.
@@ -258,12 +255,13 @@ async function McpAdapterStatusHint({ status, siteUrl }: { status: WordPressMcpA
 }
 
 async function WordPressMcpAdapterSection() {
-  const { instances } = getWordPressAPISettings();
+  const deps = getWordPressAssistantDeps();
+  const instances = deps.listInstances();
 
   const instanceStatuses = await Promise.all(
     instances.map(async (instance) => {
-      const endpoint = resolveWordPressMcpEndpoint(instance.siteUrl);
-      const status = await probeWordPressInstanceMcpAdapter(instance);
+      const endpoint = deps.resolveMcpEndpoint(instance.siteUrl);
+      const status = await deps.probeMcpAdapter(instance);
       return { instance, endpoint, status };
     })
   );
@@ -321,8 +319,8 @@ async function WordPressMcpAdapterSection() {
                   </p>
                   <McpAdapterStatusHint status={status} siteUrl={instance.siteUrl} />
                 </div>
-                <Badge variant={status === "registered" ? (isPrivateUrl(instance.siteUrl) ? "outline" : "default") : "secondary"}>
-                  {status === "registered" ? (isPrivateUrl(instance.siteUrl) ? "Local only" : "Registered") : "Not detected"}
+                <Badge variant={status === "registered" ? (deps.isPrivateUrl(instance.siteUrl) ? "outline" : "default") : "secondary"}>
+                  {status === "registered" ? (deps.isPrivateUrl(instance.siteUrl) ? "Local only" : "Registered") : "Not detected"}
                 </Badge>
               </div>
             </div>
@@ -334,12 +332,13 @@ async function WordPressMcpAdapterSection() {
 }
 
 async function WebhookSubscriptionsSection() {
-  const { instances } = getWordPressAPISettings();
+  const deps = getWordPressAssistantDeps();
+  const instances = deps.listInstances();
 
   const instanceResults = await Promise.all(
     instances.map(async (instance) => {
       try {
-        const subscriptions = await listWordPressWebhookSubscriptions(instance);
+        const subscriptions = await deps.listWebhookSubscriptions(instance);
         return {
           instance,
           subscriptions,

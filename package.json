@@ -4,10 +4,19 @@
   "license": "Apache-2.0",
   "type": "module",
   "files": [
-    "src"
+    "src",
+    "!src/__tests__/"
   ],
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./register": "./src/register.ts",
+    "./deps": "./src/deps.ts",
+    "./settings-page": "./src/settings-page.tsx",
+    "./setup-page": "./src/setup-page.tsx",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "test": "vitest",
     "lint": "eslint . --no-inline-config"
@@ -41,6 +50,10 @@
     "apiVersion": "cinatra.ai/v1",
     "kind": "connector",
     "displayName": "WordPress Assistant",
+    "serverEntry": "./register",
+    "requestedHostPorts": [
+      "capabilities"
+    ],
     "dependencies": []
   }
 }
