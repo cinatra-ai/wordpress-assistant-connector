@@ -1,6 +1,7 @@
 import "server-only";
 import type { Metadata } from "next";
 import { revalidatePath } from "next/cache";
+import Link from "next/link";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { FieldGroup, Field, FieldLabel } from "./components/ui/field";
@@ -226,9 +227,15 @@ async function McpAdapterStatusHint({ status, siteUrl }: { status: WordPressMcpA
     return (
       <p className="text-xs text-muted-foreground">
         Plugin not active.{" "}
-        <a href={pluginsUrl} target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-foreground">
-          Install WordPress/mcp-adapter
-        </a>{" "}
+        <Button
+          asChild
+          variant="link"
+          className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
+        >
+          <Link href={pluginsUrl} target="_blank" rel="noreferrer">
+            Install WordPress/mcp-adapter
+          </Link>
+        </Button>{" "}
         on this site and activate it.
       </p>
     );
@@ -238,9 +245,15 @@ async function McpAdapterStatusHint({ status, siteUrl }: { status: WordPressMcpA
     return (
       <p className="text-xs text-muted-foreground">
         Credentials rejected. Check that the application password in{" "}
-        <a href="/configuration/llm?modal=wordpress" className="underline underline-offset-2 hover:text-foreground">
-          WordPress connector administration
-        </a>{" "}
+        <Button
+          asChild
+          variant="link"
+          className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
+        >
+          <Link href="/configuration/llm?modal=wordpress">
+            WordPress connector administration
+          </Link>
+        </Button>{" "}
         has permission to access the REST API.
       </p>
     );
@@ -275,33 +288,45 @@ async function WordPressMcpAdapterSection() {
           </h2>
           <p className="text-sm text-muted-foreground">
             Cinatra automatically registers the{" "}
-            <a
-              href="https://github.com/WordPress/mcp-adapter"
-              target="_blank"
-              rel="noreferrer"
-              className="underline underline-offset-2 hover:text-foreground"
+            <Button
+              asChild
+              variant="link"
+              className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
             >
-              WordPress/mcp-adapter
-            </a>{" "}
+              <Link
+                href="https://github.com/WordPress/mcp-adapter"
+                target="_blank"
+                rel="noreferrer"
+              >
+                WordPress/mcp-adapter
+              </Link>
+            </Button>{" "}
             plugin as a parallel MCP server for each configured WordPress site.
             Install the plugin on each WP site — once reachable, its tools are
             available to all Cinatra agents automatically.
           </p>
         </div>
-        <a
-          href="/connectors/wordpress"
-          className="shrink-0 inline-flex items-center justify-center rounded-control border border-line bg-surface-strong px-4 py-2 text-sm font-medium text-foreground transition hover:border-foreground/30 hover:bg-surface-muted"
+        <Button
+          asChild
+          variant="outline"
+          className="h-auto shrink-0 rounded-control border-line bg-surface-strong px-4 py-2 text-foreground hover:border-foreground/30 hover:bg-surface-muted"
         >
-          Add MCP server
-        </a>
+          <Link href="/connectors/wordpress">Add MCP server</Link>
+        </Button>
       </div>
 
       {instanceStatuses.length === 0 ? (
         <div className="rounded-card border border-line bg-surface p-4 text-sm text-muted-foreground">
           No WordPress instances configured. Add a WordPress connector in{" "}
-          <a href="/configuration/llm?modal=wordpress" className="underline underline-offset-2 hover:text-foreground">
-            Administration → LLM → WordPress
-          </a>{" "}
+          <Button
+            asChild
+            variant="link"
+            className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
+          >
+            <Link href="/configuration/llm?modal=wordpress">
+              Administration → LLM → WordPress
+            </Link>
+          </Button>{" "}
           to enable the MCP adapter integration.
         </div>
       ) : (
@@ -371,12 +396,15 @@ async function WebhookSubscriptionsSection() {
       {instanceResults.length === 0 ? (
         <div className="rounded-card border border-line bg-surface p-4 text-sm text-muted-foreground">
           No WordPress instances configured. Add a WordPress connector in{" "}
-          <a
-            href="/configuration/llm?modal=wordpress"
-            className="underline underline-offset-2 hover:text-foreground"
+          <Button
+            asChild
+            variant="link"
+            className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
           >
-            Administration → LLM → WordPress
-          </a>{" "}
+            <Link href="/configuration/llm?modal=wordpress">
+              Administration → LLM → WordPress
+            </Link>
+          </Button>{" "}
           before registering webhooks.
         </div>
       ) : (
