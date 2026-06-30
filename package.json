@@ -54,6 +54,7 @@
     "requestedHostPorts": [
       "capabilities"
     ],
-    "dependencies": []
+    "dependencies": [],
+    "sdkAbiRange": "^2"
   }
 }
