@@ -49,6 +49,10 @@
   "cinatra": {
     "apiVersion": "cinatra.ai/v1",
     "kind": "connector",
+    "vendor": {
+      "key": "cinatra-ai",
+      "name": "Cinatra"
+    },
     "displayName": "WordPress Assistant",
     "serverEntry": "./register",
     "requestedHostPorts": [
