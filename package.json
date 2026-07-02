@@ -59,6 +59,7 @@
       "capabilities"
     ],
     "dependencies": [],
-    "sdkAbiRange": "^2"
+    "sdkAbiRange": "^2",
+    "consumes": []
   }
 }
