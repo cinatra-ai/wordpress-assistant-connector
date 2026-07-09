@@ -5,7 +5,11 @@ import Link from "next/link";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { FieldGroup, Field, FieldLabel } from "./components/ui/field";
+import { Separator } from "./components/ui/separator";
 import { Main, PageHeader, PageContent } from "@cinatra-ai/sdk-ui/marketplace";
+// Shared design-system Tabs primitive (cinatra-ai/cinatra#1103) — own subpath
+// only, deliberately NOT re-exported from `/marketplace` (route-graph ratchet).
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@cinatra-ai/sdk-ui/tabs";
 import { requireExtensionAction } from "@cinatra-ai/sdk-extensions";
 // Every host surface arrives through the host-bound deps slot (cinatra#172
 // Stage H3): widget auth-config from `@cinatra-ai/host:wordpress-widget-auth`,
@@ -95,115 +99,142 @@ export async function WordPressAssistantSettingsPage() {
       <PageHeader
         title="WordPress Widget"
         description="Generate credentials for the Cinatra WordPress plugin (cinatra.php)."
+        divider={false}
       />
       <PageContent className="flex flex-col gap-6 pb-8">
-        <div className="flex items-start gap-6">
-          <section className="soft-panel flex min-w-0 flex-1 flex-col gap-4 p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-base font-semibold text-foreground">
-                  Plugin credentials
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {config
-                    ? `Last generated ${generatedAt}. Regenerating immediately invalidates the previous values.`
-                    : "No credentials generated yet. Click Generate credentials to create an API key and webhook secret."}
-                </p>
-              </div>
-              <form action={generateCredentialsAction}>
-                <Button type="submit" variant={config ? "outline" : "default"}>
-                  {config ? "Regenerate credentials" : "Generate credentials"}
-                </Button>
-              </form>
+        <div className="mx-auto w-full max-w-3xl">
+          <Tabs defaultValue="credentials">
+            {/* The etched paired-line rule stretches from the last tab to the
+                page edge (design-system Tabs; PageHeader's own divider is off
+                above so the two rules never stack). */}
+            <div className="grid grid-cols-[auto_1fr] items-end gap-7">
+              <TabsList className="border-b-0">
+                <TabsTrigger value="credentials">Credentials</TabsTrigger>
+                <TabsTrigger value="mcp">MCP</TabsTrigger>
+                <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
+                {/* Help is the reserved tab — always last (app-connectors §II). */}
+                <TabsTrigger value="help">Help</TabsTrigger>
+              </TabsList>
+              <Separator major decorative className="mb-[11px] self-end" />
             </div>
 
-            {config ? (
-              <FieldGroup className="border-t border-line pt-4">
-                <Field>
-                  <FieldLabel>Cinatra URL</FieldLabel>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      readOnly
-                      value={cinatraUrl}
-                      className="font-mono text-sm"
-                    />
-                    <CopyButton value={cinatraUrl} />
+            <TabsContent value="credentials" className="mt-6">
+              <section className="soft-panel flex flex-col gap-4 p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col gap-1">
+                    <h2 className="text-base font-semibold text-foreground">
+                      Plugin credentials
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      {config
+                        ? `Last generated ${generatedAt}. Regenerating immediately invalidates the previous values.`
+                        : "No credentials generated yet. Click Generate credentials to create an API key and webhook secret."}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Paste into the WordPress plugin&apos;s{" "}
-                    <code>cinatra_url</code> field.
-                  </p>
-                </Field>
-                <Field>
-                  <FieldLabel>API key</FieldLabel>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      readOnly
-                      value={config.apiKey}
-                      className="font-mono text-sm"
-                    />
-                    <CopyButton value={config.apiKey} />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Paste into the WordPress plugin&apos;s{" "}
-                    <code>cinatra_api_key</code> field. Used as{" "}
-                    <code>Authorization: Bearer &lt;key&gt;</code> by the widget.
-                  </p>
-                </Field>
-                <Field>
-                  <FieldLabel>Webhook secret</FieldLabel>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      readOnly
-                      value={config.webhookSecret}
-                      className="font-mono text-sm"
-                    />
-                    <CopyButton value={config.webhookSecret} />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Paste into the WordPress plugin&apos;s{" "}
-                    <code>cinatra_webhook_secret</code> field. Used to sign{" "}
-                    <code>X-Cinatra-Sig-256</code> on outbound webhooks.
-                  </p>
-                </Field>
-              </FieldGroup>
-            ) : null}
-          </section>
+                  <form action={generateCredentialsAction}>
+                    <Button type="submit" variant={config ? "outline" : "default"}>
+                      {config ? "Regenerate credentials" : "Generate credentials"}
+                    </Button>
+                  </form>
+                </div>
 
-          <section className="soft-panel w-1/3 shrink-0 flex-col gap-3 p-6">
-            <h2 className="text-base font-semibold text-foreground">
-              Setup instructions
-            </h2>
-            <ol className="ml-5 mt-3 list-decimal text-sm text-muted-foreground [&>li+li]:mt-2">
-              <li>
-                Install the WordPress MCP Adapter plugin (recommended — enables AI
-                tool access).
-              </li>
-              <li>
-                Install the Cinatra plugin (
-                <code>dev/wordpress-plugin/cinatra.php</code>) on your
-                WordPress site.
-              </li>
-              <li>
-                Generate credentials above (creates an API key and webhook
-                secret).
-              </li>
-              <li>
-                In WordPress, go to Administration &gt; Cinatra and paste the
-                three values.
-              </li>
-              <li>
-                A floating Cinatra button appears in the bottom-right corner of
-                every WP admin page.
-              </li>
-            </ol>
-          </section>
+                {config ? (
+                  <FieldGroup className="border-t border-line pt-4">
+                    <Field>
+                      <FieldLabel>Cinatra URL</FieldLabel>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          readOnly
+                          value={cinatraUrl}
+                          className="font-mono text-sm"
+                        />
+                        <CopyButton value={cinatraUrl} />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Paste into the WordPress plugin&apos;s{" "}
+                        <code>cinatra_url</code> field.
+                      </p>
+                    </Field>
+                    <Field>
+                      <FieldLabel>API key</FieldLabel>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          readOnly
+                          value={config.apiKey}
+                          className="font-mono text-sm"
+                        />
+                        <CopyButton value={config.apiKey} />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Paste into the WordPress plugin&apos;s{" "}
+                        <code>cinatra_api_key</code> field. Used as{" "}
+                        <code>Authorization: Bearer &lt;key&gt;</code> by the widget.
+                      </p>
+                    </Field>
+                    <Field>
+                      <FieldLabel>Webhook secret</FieldLabel>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          readOnly
+                          value={config.webhookSecret}
+                          className="font-mono text-sm"
+                        />
+                        <CopyButton value={config.webhookSecret} />
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Paste into the WordPress plugin&apos;s{" "}
+                        <code>cinatra_webhook_secret</code> field. Used to sign{" "}
+                        <code>X-Cinatra-Sig-256</code> on outbound webhooks.
+                      </p>
+                    </Field>
+                  </FieldGroup>
+                ) : null}
+              </section>
+            </TabsContent>
+
+            {/* WordPress MCP Adapter status — per-instance list (multi-instance layout) */}
+            <TabsContent value="mcp" className="mx-auto mt-6 w-full max-w-xl">
+              <WordPressMcpAdapterSection />
+            </TabsContent>
+
+            {/* Webhook subscriptions — per-instance list (multi-instance layout) */}
+            <TabsContent value="webhooks" className="mx-auto mt-6 w-full max-w-xl">
+              <WebhookSubscriptionsSection />
+            </TabsContent>
+
+            {/* Help — reserved, always-last, read-only (no form, no Save). */}
+            <TabsContent value="help" className="mx-auto mt-6 w-full max-w-xl">
+              <section className="soft-panel flex w-full flex-col gap-3 p-6">
+                <h2 className="text-base font-semibold text-foreground">
+                  Setup instructions
+                </h2>
+                <ol className="ml-5 mt-3 list-decimal text-sm text-muted-foreground [&>li+li]:mt-2">
+                  <li>
+                    Install the WordPress MCP Adapter plugin (recommended — enables AI
+                    tool access).
+                  </li>
+                  <li>
+                    Install the Cinatra plugin (
+                    <code>dev/wordpress-plugin/cinatra.php</code>) on your
+                    WordPress site.
+                  </li>
+                  <li>
+                    Generate credentials in the <strong>Credentials</strong> tab
+                    (creates an API key and webhook secret).
+                  </li>
+                  <li>
+                    In WordPress, go to Administration &gt; Cinatra and paste the
+                    three values.
+                  </li>
+                  <li>
+                    A floating Cinatra button appears in the bottom-right corner of
+                    every WP admin page.
+                  </li>
+                </ol>
+              </section>
+            </TabsContent>
+          </Tabs>
         </div>
-
-        {/* WordPress MCP Adapter status */}
-        <WordPressMcpAdapterSection />
-        {/* Webhook subscriptions */}
-        <WebhookSubscriptionsSection />
       </PageContent>
     </Main>
   );
