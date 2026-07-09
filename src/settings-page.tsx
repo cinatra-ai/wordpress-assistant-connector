@@ -5,11 +5,13 @@ import Link from "next/link";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { FieldGroup, Field, FieldLabel } from "./components/ui/field";
-import { Separator } from "./components/ui/separator";
 import { ConnectorSetupPage } from "@cinatra-ai/sdk-ui/connector-setup-page";
 // Shared design-system Tabs primitive (cinatra-ai/cinatra#1103) — own subpath
 // only, deliberately NOT re-exported from `/marketplace` (route-graph ratchet).
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@cinatra-ai/sdk-ui/tabs";
+// TabsListRow is the shared under-header row primitive: it pairs the tablist
+// with the etched section rule so the composition is never hand-rolled (the
+// tablist contract forbids hand-rolling the TabsList+rule pairing).
+import { Tabs, TabsListRow, TabsTrigger, TabsContent } from "@cinatra-ai/sdk-ui/tabs";
 import { requireExtensionAction } from "@cinatra-ai/sdk-extensions";
 // Every host surface arrives through the host-bound deps slot (cinatra#172
 // Stage H3): widget auth-config from `@cinatra-ai/host:wordpress-widget-auth`,
@@ -102,19 +104,17 @@ export async function WordPressAssistantSettingsPage() {
       className="flex flex-col gap-6 pb-8"
     >
       <Tabs defaultValue="credentials">
-        {/* The etched paired-line rule stretches from the last tab to the
-            page edge (design-system Tabs; the ConnectorSetupPage header's own
-            divider is off via divider={false} so the two rules never stack). */}
-        <div className="grid grid-cols-[auto_1fr] items-end gap-7">
-          <TabsList className="border-b-0">
-            <TabsTrigger value="credentials">Credentials</TabsTrigger>
-            <TabsTrigger value="mcp">MCP</TabsTrigger>
-            <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
-            {/* Help is the reserved tab — always last (app-connectors §II). */}
-            <TabsTrigger value="help">Help</TabsTrigger>
-          </TabsList>
-          <Separator major decorative className="mb-[11px] self-end" />
-        </div>
+        {/* TabsListRow renders the tablist paired with the etched section rule
+            that stretches from the last tab to the page edge (design-system
+            Tabs). The ConnectorSetupPage header's own divider is off via
+            divider={false} so the two rules never stack. */}
+        <TabsListRow>
+          <TabsTrigger value="credentials">Credentials</TabsTrigger>
+          <TabsTrigger value="mcp">MCP</TabsTrigger>
+          <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
+          {/* Help is the reserved tab — always last (app-connectors §II). */}
+          <TabsTrigger value="help">Help</TabsTrigger>
+        </TabsListRow>
 
         <TabsContent value="credentials" className="mt-6">
           <section className="soft-panel flex flex-col gap-4 p-6">
