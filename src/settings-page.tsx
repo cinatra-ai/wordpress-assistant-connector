@@ -125,22 +125,15 @@ export async function WordPressAssistantSettingsPage() {
               in its own card". No mx-auto (that would centre it and break the
               header↔content left-edge alignment); no soft-panel wrapper. */}
           <section className="flex flex-col gap-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-base font-semibold text-foreground">
-                  Plugin credentials
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {config
-                    ? `Last generated ${generatedAt}. Regenerating immediately invalidates the previous values.`
-                    : "No credentials generated yet. Click Generate credentials to create an API key and webhook secret."}
-                </p>
-              </div>
-              <form action={generateCredentialsAction}>
-                <Button type="submit" variant={config ? "outline" : "default"}>
-                  {config ? "Regenerate credentials" : "Generate credentials"}
-                </Button>
-              </form>
+            <div className="flex flex-col gap-1">
+              <h2 className="text-base font-semibold text-foreground">
+                Plugin credentials
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {config
+                  ? `Last generated ${generatedAt}. Regenerating immediately invalidates the previous values.`
+                  : "No credentials generated yet. Click Generate credentials to create an API key and webhook secret."}
+              </p>
             </div>
 
             {config ? (
@@ -194,6 +187,16 @@ export async function WordPressAssistantSettingsPage() {
                 </Field>
               </FieldGroup>
             ) : null}
+
+            {/* Contract rule: the action button sits at the END of the tab
+                content, below the fields — matching the spec config-tab render
+                where the primary action closes the content ("ending in its own
+                Save", app-connectors.html §II). */}
+            <form action={generateCredentialsAction} className="mt-2">
+              <Button type="submit" variant={config ? "outline" : "default"}>
+                {config ? "Regenerate credentials" : "Generate credentials"}
+              </Button>
+            </form>
           </section>
         </TabsContent>
 
@@ -319,38 +322,29 @@ async function WordPressMcpAdapterSection() {
     // Card-less tab content (§II: "the form is never wrapped in its own card").
     // The per-instance rows below keep their own subordinate record cards.
     <section className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-base font-semibold text-foreground">
-            WordPress MCP Adapter
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Cinatra automatically registers the{" "}
-            <Button
-              asChild
-              variant="link"
-              className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
+      <div className="flex flex-col gap-1">
+        <h2 className="text-base font-semibold text-foreground">
+          WordPress MCP Adapter
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Cinatra automatically registers the{" "}
+          <Button
+            asChild
+            variant="link"
+            className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
+          >
+            <Link
+              href="https://github.com/WordPress/mcp-adapter"
+              target="_blank"
+              rel="noreferrer"
             >
-              <Link
-                href="https://github.com/WordPress/mcp-adapter"
-                target="_blank"
-                rel="noreferrer"
-              >
-                WordPress/mcp-adapter
-              </Link>
-            </Button>{" "}
-            plugin as a parallel MCP server for each configured WordPress site.
-            Install the plugin on each WP site — once reachable, its tools are
-            available to all Cinatra agents automatically.
-          </p>
-        </div>
-        <Button
-          asChild
-          variant="outline"
-          className="h-auto shrink-0 rounded-control border-line bg-surface-strong px-4 py-2 text-foreground hover:border-foreground/30 hover:bg-surface-muted"
-        >
-          <Link href="/connectors/wordpress">Add MCP server</Link>
-        </Button>
+              WordPress/mcp-adapter
+            </Link>
+          </Button>{" "}
+          plugin as a parallel MCP server for each configured WordPress site.
+          Install the plugin on each WP site — once reachable, its tools are
+          available to all Cinatra agents automatically.
+        </p>
       </div>
 
       {instanceStatuses.length === 0 ? (
@@ -390,6 +384,19 @@ async function WordPressMcpAdapterSection() {
           ))}
         </div>
       )}
+
+      {/* Contract rule: the action button sits at the END of the tab content,
+          below the per-instance list (app-connectors.html §II config-tab
+          render — the primary action closes the content). */}
+      <div className="mt-2">
+        <Button
+          asChild
+          variant="outline"
+          className="h-auto rounded-control border-line bg-surface-strong px-4 py-2 text-foreground hover:border-foreground/30 hover:bg-surface-muted"
+        >
+          <Link href="/connectors/wordpress">Add MCP server</Link>
+        </Button>
+      </div>
     </section>
   );
 }
@@ -456,24 +463,13 @@ async function WebhookSubscriptionsSection() {
                 key={instance.id}
                 className="rounded-card border border-line bg-surface p-4"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm font-medium text-foreground">{instance.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      <code className="rounded-chip bg-surface-strong px-1 py-0.5 text-xs">
-                        {instance.siteUrl}
-                      </code>
-                    </p>
-                  </div>
-                  <form action={registerAction}>
-                    <Button
-                      type="submit"
-                      variant={subscriptions.length === 0 && !error ? "default" : "outline"}
-                      size="sm"
-                    >
-                      Register webhooks
-                    </Button>
-                  </form>
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-medium text-foreground">{instance.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    <code className="rounded-chip bg-surface-strong px-1 py-0.5 text-xs">
+                      {instance.siteUrl}
+                    </code>
+                  </p>
                 </div>
 
                 {error ? (
@@ -522,6 +518,19 @@ async function WebhookSubscriptionsSection() {
                     })}
                   </ul>
                 )}
+
+                {/* Contract rule: the per-instance action closes the card
+                    content, below the subscription list (app-connectors.html
+                    §II — the action ends the content, never heads it). */}
+                <form action={registerAction} className="mt-3">
+                  <Button
+                    type="submit"
+                    variant={subscriptions.length === 0 && !error ? "default" : "outline"}
+                    size="sm"
+                  >
+                    Register webhooks
+                  </Button>
+                </form>
               </div>
             );
           })}
