@@ -116,8 +116,15 @@ export async function WordPressAssistantSettingsPage() {
           <TabsTrigger value="help">Help</TabsTrigger>
         </TabsListRow>
 
-        <TabsContent value="credentials" className="mt-6">
-          <section className="soft-panel flex flex-col gap-4 p-6">
+        <TabsContent value="credentials" className="mt-6 w-full max-w-xl">
+          {/* Card-less, Narrow (max-w-xl · 576px), flush-left under the tablist:
+              this connector has no Setup/Connections connection surface, so
+              Credentials is a form-only config tab. Per app-connectors.html §II
+              a custom tab's content "narrows to the Narrow width (max-w-xl ·
+              576px) … flush-left under the tabs" and "the form is never wrapped
+              in its own card". No mx-auto (that would centre it and break the
+              header↔content left-edge alignment); no soft-panel wrapper. */}
+          <section className="flex flex-col gap-4">
             <div className="flex items-start justify-between gap-4">
               <div className="flex flex-col gap-1">
                 <h2 className="text-base font-semibold text-foreground">
@@ -190,19 +197,21 @@ export async function WordPressAssistantSettingsPage() {
           </section>
         </TabsContent>
 
-        {/* WordPress MCP Adapter status — per-instance list (multi-instance layout) */}
-        <TabsContent value="mcp" className="mx-auto mt-6 w-full max-w-xl">
+        {/* WordPress MCP Adapter status — per-instance list. Narrow (max-w-xl),
+            flush-left under the tablist (no mx-auto). */}
+        <TabsContent value="mcp" className="mt-6 w-full max-w-xl">
           <WordPressMcpAdapterSection />
         </TabsContent>
 
-        {/* Webhook subscriptions — per-instance list (multi-instance layout) */}
-        <TabsContent value="webhooks" className="mx-auto mt-6 w-full max-w-xl">
+        {/* Webhook subscriptions — per-instance list. Narrow, flush-left. */}
+        <TabsContent value="webhooks" className="mt-6 w-full max-w-xl">
           <WebhookSubscriptionsSection />
         </TabsContent>
 
-        {/* Help — reserved, always-last, read-only (no form, no Save). */}
-        <TabsContent value="help" className="mx-auto mt-6 w-full max-w-xl">
-          <section className="soft-panel flex w-full flex-col gap-3 p-6">
+        {/* Help — reserved, always-last, read-only (no form, no Save). Narrow,
+            flush-left, card-less (§II custom-tab frame rule). */}
+        <TabsContent value="help" className="mt-6 w-full max-w-xl">
+          <section className="flex w-full flex-col gap-3">
             <h2 className="text-base font-semibold text-foreground">
               Setup instructions
             </h2>
@@ -307,7 +316,9 @@ async function WordPressMcpAdapterSection() {
   );
 
   return (
-    <section className="soft-panel flex flex-col gap-4 p-6">
+    // Card-less tab content (§II: "the form is never wrapped in its own card").
+    // The per-instance rows below keep their own subordinate record cards.
+    <section className="flex flex-col gap-4">
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h2 className="text-base font-semibold text-foreground">
@@ -407,7 +418,9 @@ async function WebhookSubscriptionsSection() {
   );
 
   return (
-    <section className="soft-panel flex flex-col gap-4 p-6">
+    // Card-less tab content (§II: "the form is never wrapped in its own card").
+    // The per-instance rows below keep their own subordinate record cards.
+    <section className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <h2 className="text-base font-semibold text-foreground">
           Webhook subscriptions
