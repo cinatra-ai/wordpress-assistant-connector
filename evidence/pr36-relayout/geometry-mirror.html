@@ -1,0 +1,96 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/>
+<style>
+:root{
+  --paper:#f1f1ed;--surface:#f7f7f3;--surface-strong:#fff;--surface-muted:#e8e8e3;
+  --ink:#15213a;--blue:#364e81;--muted:#5a6477;--line:rgba(21,33,58,0.14);--line-strong:#15213a;
+  --font-sans:"Archivo",ui-sans-serif,system-ui,sans-serif;--font-body:"Inter",ui-sans-serif,system-ui,sans-serif;
+}
+html.dark{
+  --paper:#0f1626;--surface:#141d30;--surface-strong:#1b2740;--surface-muted:#1f2c48;
+  --ink:#e7ecf5;--blue:#8aa0d6;--muted:#93a0ba;--line:rgba(231,236,245,0.14);--line-strong:#e7ecf5;
+}
+*{box-sizing:border-box;margin:0;}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.5;padding:28px 0 40px;}
+.stage{max-width:1180px;margin:0 auto;padding:0 40px;} /* the content stage (like max-w-7xl) */
+.caption{max-width:1180px;margin:0 auto 6px;padding:0 40px;font-family:var(--font-sans);font-weight:800;font-style:italic;font-size:15px;color:var(--ink);}
+.sub{max-width:1180px;margin:0 auto 14px;padding:0 40px;font-size:12px;color:var(--muted);}
+.frame{position:relative;border:1px solid var(--line);border-radius:8px;background:var(--surface);overflow:hidden;margin:0 auto 26px;max-width:1180px;}
+.framehd{padding:8px 14px;background:var(--surface-strong);border-bottom:1px solid var(--line);font-family:var(--font-mono,monospace);font-size:9.5px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;font-weight:700;}
+.stagebox{padding:26px 40px 30px;position:relative;}
+/* wide column = max-w-3xl 768, centered */
+.wide{max-width:768px;margin:0 auto;position:relative;}
+.h1{font-family:var(--font-sans);font-style:italic;font-weight:800;font-size:28px;letter-spacing:-.018em;line-height:1.05;color:var(--ink);}
+.desc{font-size:13.5px;color:var(--muted);margin-top:6px;}
+.tabsrow{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:flex-end;margin-top:18px;}
+.tablist{display:flex;gap:0;}
+.tab{font-size:13px;padding:9px 14px 11px;background:transparent;border:0;font-family:var(--font-sans);cursor:default;color:var(--muted);font-weight:400;}
+.tab.sel{color:var(--blue);font-weight:600;border-bottom:2px solid var(--blue);margin-bottom:-1px;}
+.etch{height:5px;border-top:1px solid var(--line-strong);border-bottom:1px solid var(--line-strong);align-self:flex-end;margin-bottom:11px;}
+/* tab content variants */
+.narrow{max-width:576px;margin-top:24px;}
+.centered{max-width:576px;margin:24px auto 0;} /* the BEFORE bug: mx-auto */
+.card{border:1px solid var(--line);border-radius:12px;background:var(--surface-strong);padding:24px;box-shadow:0 1px 2px rgba(21,33,58,.05);}
+.h2{font-family:var(--font-sans);font-weight:600;font-size:16px;color:var(--ink);margin-bottom:8px;}
+.p{font-size:13px;color:var(--muted);line-height:1.5;}
+.li{font-size:13px;color:var(--muted);margin:6px 0 0 18px;}
+/* left-edge guide */
+.guide{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed #a6384f;z-index:5;}
+.guidelbl{position:absolute;top:2px;left:6px;font-family:var(--font-mono,monospace);font-size:10px;color:#a6384f;font-weight:700;background:rgba(166,56,79,.10);padding:1px 5px;border-radius:3px;}
+.badgeC{position:absolute;left:10px;font-family:var(--font-mono,monospace);font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;}
+.ok{color:#3f6e6b;background:rgba(63,110,107,.14);}
+.bad{color:#a6384f;background:rgba(166,56,79,.12);}
+</style></head>
+<body>
+<div class="caption">wordpress-assistant setup — §II tab-content alignment · BEFORE (rejected) vs AFTER (fixed)</div>
+<div class="sub">Dimensionally-exact mirror of the ConnectorSetupPage class output (real design tokens). Header &amp; content = max-w-3xl (768px) centered in the stage; the red dashed line marks the header's left edge. This proves the three owner-named §II fixes geometrically; it is NOT a full authenticated host-boot render.</div>
+
+<!-- BEFORE -->
+<div class="frame">
+  <div class="framehd">BEFORE — tab content mx-auto (centered) + soft-panel card · header edge ≠ content edge</div>
+  <div class="stagebox">
+    <div class="wide" id="wideB">
+      <div class="h1">WordPress Widget</div>
+      <div class="desc">Connector setup</div>
+      <div class="tabsrow"><div class="tablist"><span class="tab">Credentials</span><span class="tab">MCP</span><span class="tab">Webhooks</span><span class="tab sel">Help</span></div><div class="etch"></div></div>
+      <div class="centered">
+        <div class="card">
+          <div class="h2">Setup instructions</div>
+          <div class="li">Install the WordPress MCP Adapter plugin.</div>
+          <div class="li">Install the Cinatra plugin on your WordPress site.</div>
+          <div class="li">Generate credentials in the Credentials tab.</div>
+        </div>
+        <div class="badgeC bad" style="top:70px;left:-2px;transform:translateX(-100%);white-space:nowrap;">content left ≠ header left (+96px) · card wrapper</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AFTER -->
+<div class="frame">
+  <div class="framehd">AFTER — tab content max-w-xl flush-left (no mx-auto) + card-less · header edge = content edge</div>
+  <div class="stagebox">
+    <div class="wide" id="wideA">
+      <div class="h1">WordPress Widget</div>
+      <div class="desc">Connector setup</div>
+      <div class="tabsrow"><div class="tablist"><span class="tab">Credentials</span><span class="tab">MCP</span><span class="tab">Webhooks</span><span class="tab sel">Help</span></div><div class="etch"></div></div>
+      <div class="narrow">
+        <div class="h2">Setup instructions</div>
+        <div class="li">Install the WordPress MCP Adapter plugin.</div>
+        <div class="li">Install the Cinatra plugin on your WordPress site.</div>
+        <div class="li">Generate credentials in the Credentials tab.</div>
+        <div class="badgeC ok" style="top:70px;left:0;transform:translateX(-100%) translateX(-10px);white-space:nowrap;">content left = header left · no card</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// draw a guide at the wide column's left edge across both frames
+for(const id of ['wideB','wideA']){
+  const w=document.getElementById(id);const box=w.closest('.stagebox');
+  const wr=w.getBoundingClientRect();const br=box.getBoundingClientRect();
+  const g=document.createElement('div');g.className='guide';g.style.left=(wr.left-br.left)+'px';
+  const l=document.createElement('div');l.className='guidelbl';l.style.left=(wr.left-br.left+4)+'px';l.textContent='header left edge';
+  box.appendChild(g);box.appendChild(l);
+}
+</script>
+</body></html>

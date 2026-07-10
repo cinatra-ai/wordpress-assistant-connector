@@ -1,0 +1,993 @@
+OpenAI Codex v0.144.0
+--------
+workdir: /Users/ordnas/Code/cinatra-ai/design
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 019f4b64-5869-7db2-a81b-9896c642e4d5
+--------
+user
+You are converging a design-spec INTERPRETATION for cinatra connector setup pages. Read these files yourself (do not trust my summary):
+
+1. /Users/ordnas/Code/cinatra-ai/design/specs/app-connectors.html — section "II. Connector setup page", especially "Additional configuration tabs" (~line 570) and the "Example — additional config tab" markup (~lines 575-648), plus prose at ~line 650. Also §VII "Content widths" in /Users/ordnas/Code/cinatra-ai/design/specs/app.html (~line 684).
+2. Shared shell: run `git -C /Users/ordnas/Code/cinatra-ai/cinatra show origin/main:packages/sdk-ui/src/connector-setup-page.tsx`.
+3. Page under owner review: run `git -C /Users/ordnas/Code/cinatra-ai/wordpress-assistant-connector show origin/feat/35-mcp-webhooks-help-tabs:src/settings-page.tsx` (tab layout ~lines 99-235).
+
+Owner review: the page "Violates various design specs: Page header not aligned with content frame; card wrapping tab content; tab content centered instead of left; and more."
+
+Rule on THREE questions, quoting the spec's own words/markup:
+
+Q1. For a custom/config tab and Help, the spec says content "narrows to the Narrow width (max-w-xl · 576px)". Is that narrow content CENTERED within the Wide column (mx-auto) or FLUSH-LEFT sharing the header's left edge? Current wp code uses `mx-auto mt-6 w-full max-w-xl`. Correct or violation?
+
+Q2. The spec phrase "the form is never wrapped in its own card" plus the config-tab example markup. Current wp wraps each tab's content in `<section className="soft-panel ...">`. Violation? Does the no-card rule forbid a whole-tab wrapper only, or also sub-section cards inside a tab?
+
+Q3. wp-assistant has NO connection surface (owner ruling: instances live in the core WordPress connector). Tabs are Credentials, MCP, Webhooks, Help — none is the spec's "Setup"/"Connections" connection tab. Current code keeps Credentials at WIDE (max-w-3xl). Given no Setup/Connections tab exists, should Credentials (a form-only config tab) be WIDE or NARROW (max-w-xl) flush-left like the others? Cite §VII ("Forms belong one step in, at max-w-xl") and the config-tab rule.
+
+Crisp verdict per question (CORRECT / VIOLATION + conformant value), grounded in quoted spec text. Under 400 words.
+
+warning: failed to parse hooks config /Users/ordnas/.codex/hooks.json: unknown field `SessionStart`, expected `description` or `hooks` at line 2 column 16
+codex
+I’ll read the spec and the two referenced source versions directly, then answer only the three interpretation points with the relevant spec wording.
+exec
+/bin/zsh -lc "sed -n '675,705p' specs/app.html" in /Users/ordnas/Code/cinatra-ai/design
+ succeeded in 0ms:
+    </div>
+    <div class="swatch" style="grid-template-rows: auto;">
+      <div class="info" style="padding: 16px 18px;">
+        <div class="role">8. White means interactive</div>
+        <div class="use">Pure-white <code>--surface-strong</code> (<code>#FFFFFF</code>) is reserved for elements the user actually touches — text inputs, clickable cards, popovers, dropdown menus. Everything else (presentation cards, panels, stat tiles, palette swatches) sits on the warm-cream <code>--surface</code> (<code>#F7F7F3</code>). The eye learns to seek the brighter surface when input is invited.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Content widths ──────────────────────────────────────── -->
+  <div class="sect">
+    <h2>VII. Content widths</h2>
+    <div class="rule"></div>
+    <div class="source">7 roles · Tailwind scale · rem / px</div>
+  </div>
+
+  <p style="max-width: 66ch; font-family: var(--font-body); font-weight: 400; font-size: 14px; line-height: 1.6; color: var(--ink); margin: 0 0 10px; text-wrap: pretty;">The app is a fixed <code>16rem</code> sidebar beside a fluid content stage. Nothing inside that stage runs edge-to-edge: every page holds its content to one of a small set of max-widths, each centred in the stage, each a named step on Tailwind's <code>max-w-*</code> scale. The rule mirrors the one for text (VIII) — <strong style="color:var(--ink);">pick the narrowest width the content tolerates</strong>: reading stays comfortable, forms stay scannable, and one page never sprawls while the next feels cramped.</p>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 0 0 26px;">
+
+    <figure style="margin: 0;">
+      <div style="border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; background: var(--paper); height: 148px; display: flex;">
+        <div style="width: 42px; flex: none; background: var(--sidebar); border-right: 1px solid var(--line); padding: 9px 8px; display: flex; flex-direction: column; gap: 6px;">
+          <div style="width: 15px; height: 15px; border-radius: 4px; background: var(--blue); opacity: 0.85;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.5; margin-top: 3px;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.3;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.3;"></div>
+        </div>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+          <div style="height: 25px; flex: none; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 5px; padding: 0 12px;">
+            <div style="width: 8px; height: 8px; border-radius: 2px; background: var(--muted); opacity: 0.5;"></div>
+
+exec
+/bin/zsh -lc "sed -n '560,665p' specs/app-connectors.html" in /Users/ordnas/Code/cinatra-ai/design
+ succeeded in 0ms:
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px;">
+          <button type="button" class="btn outline" style="cursor: pointer;">Cancel</button>
+          <button type="button" class="btn destructive" style="cursor: pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/><path d="m3 3 18 18"/></svg>Disconnect</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p style="max-width: 66ch; font-family: var(--font-body); font-weight: 400; font-size: 13.5px; line-height: 1.55; color: var(--muted); margin: 12px 0 6px;">On a multi-connection connector the <b style="color:var(--ink);font-weight:600;">Setup</b> tab keeps the same two-column form, with four differences: the right card is <b style="color:var(--ink);font-weight:600;">Connections status</b> (plural) carrying <b style="color:var(--ink);font-weight:600;">one count badge per status</b> — a green <em>2 Connected</em>, a red <em>1 Disconnected</em>, only the statuses in play; there is <b style="color:var(--ink);font-weight:600;">no Check</b> and, in its place, a link-style <b style="color:var(--blue);font-weight:600;">All connections</b> that opens the Connections tab; the left form has <b style="color:var(--ink);font-weight:600;">no Disconnect</b> (Connect adds one, and the form is never wrapped in its own card); and the form <b style="color:var(--ink);font-weight:600;">adds</b> a connection rather than editing the one. The <b style="color:var(--ink);font-weight:600;">Connections</b> tab stacks every connection as <b style="color:var(--ink);font-weight:600;">its own card</b> — name, URL, the same solid status badge, and a per-row action that follows the status: <b style="color:var(--red);font-weight:600;">Disconnect</b> (destructive) on a connected row, <b style="color:var(--blue);font-weight:600;">Connect</b> (primary) on a disconnected one — never a bare Remove. Disconnecting a single connection opens the same AlertDialog with <b style="color:var(--ink);font-weight:600;">connection-level</b> copy (<em>Disconnect connection?</em>), generic to any connector.</p>
+
+  <h3 style="font-family: var(--font-sans); font-style: italic; font-weight: 800; font-size: 18px; letter-spacing: -0.012em; line-height: 1.15; margin: 34px 0 10px; color: var(--ink);">Additional configuration tabs</h3>
+  <p style="font-size: 13.5px; color: var(--muted); margin: 0 0 18px; max-width: 66ch; line-height: 1.55;">Either shape may also carry <b style="color:var(--ink);font-weight:600;">extra configuration tabs</b> — a connector's own settings beyond connecting. The OpenAI connector, for instance, adds a <b style="color:var(--ink);font-weight:600;">Local shell</b> tab for its sandboxed-shell policy. Each custom tab takes the connector's own <b style="color:var(--ink);font-weight:600;">label</b> and sits <b style="color:var(--ink);font-weight:600;">after Setup</b> (and Connections), in the order the connector declares them. A connector with no extra tabs and one connection shows no tablist at all; the first custom tab is what introduces one. The <b style="color:var(--ink);font-weight:600;">page header and tablist stay at the Wide column</b>, but a custom tab's <b style="color:var(--ink);font-weight:600;">content narrows to the Narrow width</b> (<code>max-w-xl</code> · 576px, §VII) — a long single-column settings form reads better tighter — left-aligned beneath the tabs.</p>
+
+  <p style="font-size: 13.5px; color: var(--muted); margin: 0 0 18px; max-width: 66ch; line-height: 1.55;">One tab label is <b style="color:var(--ink);font-weight:600;">reserved</b>. A connector may add a <b style="color:var(--ink);font-weight:600;">Help</b> tab carrying its own <b style="color:var(--ink);font-weight:600;">setup how-to</b> — the prose, prerequisites and links a user needs to connect it, <b style="color:var(--ink);font-weight:600;">read-only</b> (no form, no <em>Save</em>). It obeys every custom-tab frame rule — its own tab in the Wide strip, content at the Narrow width — but its position is fixed: <b style="color:var(--ink);font-weight:600;">Help always sits last</b>, after Setup, after Connections, and after every other custom tab. A connector that only needs to explain itself may carry Help and no other tab; then Help is what introduces the tablist. Reserving the final slot keeps <em>“how do I set this up?”</em> in the same place on every connector.</p>
+
+  <!-- Example — additional config tab -->
+  <div style="border: 1px solid var(--line); border-radius: 8px; background: var(--paper); overflow: hidden; margin: 0 0 12px;">
+    <div style="padding: 8px 14px; background: var(--surface); border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; font-weight: 700;">Example — additional config tab · Narrow content under Wide chrome</div>
+    <div style="padding: 26px 24px;">
+
+      <!-- header + tablist stay at the Wide column -->
+      <div style="max-width: 768px; margin: 0 auto;">
+        <div style="font-family: var(--font-sans); font-style: italic; font-weight: 800; font-size: 28px; letter-spacing: -0.018em; line-height: 1.05; color: var(--ink);">OpenAI</div>
+        <div style="font-size: 13.5px; color: var(--muted); margin-top: 6px;">Connector setup</div>
+
+        <div style="display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: flex-end; margin-top: 18px;">
+          <div role="tablist" style="display: flex; gap: 0; padding: 0;">
+            <button role="tab" aria-selected="false" style="font-size: 13px; padding: 9px 14px 11px; color: var(--muted); font-weight: 400; background: transparent; border: 0; cursor: pointer; font-family: var(--font-sans);">Setup</button>
+            <button role="tab" aria-selected="true" style="font-size: 13px; padding: 9px 14px 11px; color: var(--blue); font-weight: 600; background: transparent; border: 0; border-bottom: 2px solid var(--blue); margin-bottom: -1px; cursor: pointer; font-family: var(--font-sans);">Local shell</button>
+            <button role="tab" aria-selected="false" style="font-size: 13px; padding: 9px 14px 11px; color: var(--muted); font-weight: 400; background: transparent; border: 0; cursor: pointer; font-family: var(--font-sans);">Help</button>
+          </div>
+          <div style="height: 5px; border-top: 1px solid var(--line-strong); border-bottom: 1px solid var(--line-strong); align-self: flex-end; margin-bottom: 11px;"></div>
+        </div>
+
+        <!-- the custom tab's content narrows to the Narrow width (576px), flush-left under the tabs -->
+        <div data-conformance-id="connector-config-tab" data-state="loading error" style="max-width: 576px; margin-top: 24px;">
+
+          <div style="margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+              <label style="font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--ink);">Enable sandboxed shell architecture</label>
+              <span data-field="sandbox-enabled=config.shell.enabled" role="switch" aria-checked="true" style="display: inline-flex; width: 34px; height: 20px; border-radius: 9999px; background: var(--blue); padding: 2px; box-sizing: border-box; flex: none;"><span style="width: 16px; height: 16px; border-radius: 50%; background: var(--surface-strong); margin-left: auto; box-shadow: 0 1px 2px rgba(21,33,58,0.3);"></span></span>
+            </div>
+            <div style="font-size: 11.5px; color: var(--muted); margin-top: 5px; line-height: 1.45; max-width: 52ch;">When enabled, the package can prepare shell tool payloads plus the sandbox policy your production executor should apply.</div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">Container image</label>
+            <div data-field="container-image=config.shell.containerImage" style="display: flex; align-items: center; height: 36px; background: var(--surface-strong); border: 1px solid var(--line-strong); border-radius: 7px; padding: 0 12px; box-shadow: 0 1px 2px rgba(21,33,58,0.05);"></div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 6px;">Max execution seconds</label>
+            <div data-field="max-execution-seconds=config.shell.maxSeconds" style="display: flex; align-items: center; height: 36px; background: var(--surface-strong); border: 1px solid var(--line-strong); border-radius: 7px; padding: 0 12px; box-shadow: 0 1px 2px rgba(21,33,58,0.05);"><span style="font-size: 14px; color: var(--ink); font-family: var(--font-body);">30</span></div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+              <label style="font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--ink);">Require executor audit logs</label>
+              <span role="switch" aria-checked="true" style="display: inline-flex; width: 34px; height: 20px; border-radius: 9999px; background: var(--blue); padding: 2px; box-sizing: border-box; flex: none;"><span style="width: 16px; height: 16px; border-radius: 50%; background: var(--surface-strong); margin-left: auto; box-shadow: 0 1px 2px rgba(21,33,58,0.3);"></span></span>
+            </div>
+            <div style="font-size: 11.5px; color: var(--muted); margin-top: 5px; line-height: 1.45; max-width: 52ch;">Signals that <code>shell_call</code> and <code>shell_call_output</code> events must be preserved for auditing.</div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 8px;">Readable roots</label>
+            <div data-field="readable-roots=config.shell.readRoots" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+              <div style="flex: 1; display: flex; align-items: center; height: 36px; background: var(--surface-strong); border: 1px solid var(--line-strong); border-radius: 7px; padding: 0 12px; box-shadow: 0 1px 2px rgba(21,33,58,0.05);"><span style="font-size: 14px; color: var(--ink); font-family: var(--font-mono);">/workspace</span></div>
+              <button type="button" aria-label="Remove path" style="width: 36px; height: 36px; flex: none; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-strong); display: grid; place-items: center; color: var(--muted); cursor: pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+            </div>
+            <button type="button" class="btn outline" style="font-size: 12.5px; padding: 6px 11px; cursor: pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add path</button>
+          </div>
+
+          <div style="margin-bottom: 4px;">
+            <label style="display: block; font-family: var(--font-sans); font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 8px;">Allowed command prefixes</label>
+            <div data-field="allowed-command-prefixes=config.shell.allowedPrefixes" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+              <div style="flex: 1; display: flex; align-items: center; height: 36px; background: var(--surface-strong); border: 1px solid var(--line-strong); border-radius: 7px; padding: 0 12px; box-shadow: 0 1px 2px rgba(21,33,58,0.05);"><span style="font-size: 14px; color: var(--ink); font-family: var(--font-mono);">ls</span></div>
+              <button type="button" aria-label="Remove prefix" style="width: 36px; height: 36px; flex: none; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-strong); display: grid; place-items: center; color: var(--muted); cursor: pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+            </div>
+            <button type="button" class="btn outline" style="font-size: 12.5px; padding: 6px 11px; cursor: pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M5 12h14"/><path d="M12 5v14"/></svg>Add prefix</button>
+          </div>
+
+          <div style="margin-top: 22px;">
+            <button type="button" class="btn primary" data-action="save-config -> saved" style="cursor: pointer;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg>Save</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p style="max-width: 66ch; font-family: var(--font-body); font-weight: 400; font-size: 13.5px; line-height: 1.55; color: var(--muted); margin: 12px 0 6px;">A non-Help custom tab is the one place the setup page leaves the <b style="color:var(--ink);font-weight:600;">Wide</b> column: the header and tab strip stay Wide so the tabs sit in the same place across tabs, while the settings themselves drop to <b style="color:var(--ink);font-weight:600;">Narrow</b> (576px), flush-left under the tablist. The tab carries the connector's own fields in a single column — <b style="color:var(--ink);font-weight:600;">switches</b> for immediate-effect toggles (indigo when on), inputs, and <b style="color:var(--ink);font-weight:600;">add / remove list editors</b> for path, host and prefix lists — ending in its own <em>Save</em>.</p>
+
+<footer>
+    <span>Cinatra · Application Design — Connectors v0.6.0</span><!-- source-leak-allow -->
+    <span>Set in Archivo · Set on cream</span>
+  </footer>
+</div>
+</body>
+</html>
+
+exec
+/bin/zsh -lc 'git -C /Users/ordnas/Code/cinatra-ai/cinatra show origin/main:packages/sdk-ui/src/connector-setup-page.tsx' in /Users/ordnas/Code/cinatra-ai/design
+exec
+/bin/zsh -lc 'git -C /Users/ordnas/Code/cinatra-ai/wordpress-assistant-connector show origin/feat/35-mcp-webhooks-help-tabs:src/settings-page.tsx' in /Users/ordnas/Code/cinatra-ai/design
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-mk7n1BYG' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-cLWa1mQu' (errno=Operation not permitted)
+// Ships ONLY from its own `@cinatra-ai/sdk-ui/connector-setup-page` subpath —
+// deliberately NOT re-exported from the `.` (index) or `/marketplace` barrels,
+// exactly like the `Tabs` primitive. Adding a module to a barrel puts it on the
+// reachable first-party module graph of every app route that transitively
+// imports that barrel, which trips the route-graph no-new-rot ratchet. Extension
+// setup pages import it directly:
+//   import { ConnectorSetupPage } from "@cinatra-ai/sdk-ui/connector-setup-page";
+import type { ReactNode } from "react";
+import { Main } from "./main";
+import {
+  PageHeader,
+  type PageHeaderSize,
+  type PageHeaderTone,
+} from "./page-header";
+import { PageContent } from "./page-content";
+import { cn } from "./lib/utils";
+
+/** The design-system "Wide" content column — max-w-3xl · 768px (app-connectors.html §II). */
+const SETUP_WIDE_COLUMN = "max-w-3xl";
+
+export interface ConnectorSetupPageProps {
+  /** Connector name — the page-title h1. */
+  title: string;
+  /** Small contextual label rendered above the h1. */
+  label?: string;
+  /** Sub-title beneath the h1 (e.g. "Connector setup"). */
+  description?: string;
+  /** Right-side header actions (e.g. the connection-status badge). */
+  actions?: ReactNode;
+  /** Page-title display scale — see {@link PageHeader}. */
+  size?: PageHeaderSize;
+  /** Page-title color tone — see {@link PageHeader}. */
+  tone?: PageHeaderTone;
+  /**
+   * Render the etched section rule beneath the header. Default ON (matches the
+   * single-connection spec chrome). A tabbed setup page whose tab row already
+   * carries the rule passes `divider={false}` so the two rules never stack.
+   */
+  divider?: boolean;
+  /** The setup-page body (form, tabs, cards…). */
+  children: ReactNode;
+  /** Extra classes on the content region beneath the header. */
+  className?: string;
+  /** Extra classes on the outer `<main>`. */
+  mainClassName?: string;
+}
+
+/**
+ * ConnectorSetupPage — the canonical connector setup-page shell.
+ *
+ * Renders the page header AND the content in the single centered "Wide" column
+ * (`max-w-3xl` · 768px, per `design/specs/app-connectors.html` §II — "The page
+ * holds to the Wide column and never spans full width"), so the header's left
+ * edge always aligns with the content's — the header never spans full width.
+ *
+ * It does this by constraining BOTH the shared `PageHeader` and `PageContent`
+ * to the same Wide width. Those two primitives already share an alignment
+ * contract ("PageContent matches the max-width and horizontal padding of
+ * PageHeader so columns stay aligned"); this shell simply pins both to the Wide
+ * width instead of the default `max-w-7xl`, so their left edges coincide at
+ * every breakpoint. The Wide width is applied AFTER the consumer `className`,
+ * so a plain `max-w-*` in `className` cannot silently narrow one side and
+ * re-introduce the header↔content misalignment this component exists to
+ * prevent (a deliberately breakpoint- or `!`-flagged width would still win,
+ * but that is out of contract).
+ *
+ * Every connector setup page composes this instead of hand-rolling
+ * `Main` + `PageHeader` + a separate content frame, so the alignment is
+ * structural and uniform across connectors.
+ *
+ * @example
+ * <ConnectorSetupPage title="OpenAI" description="Connector setup" actions={statusBadge}>
+ *   <ConfigForm … />
+ * </ConnectorSetupPage>
+ *
+ * @example  // tabbed page — its tab row owns the section rule
+ * <ConnectorSetupPage title="WordPress Widget" description="…" divider={false}>
+ *   <Tabs …>…</Tabs>
+ * </ConnectorSetupPage>
+ */
+export function ConnectorSetupPage({
+  title,
+  label,
+  description,
+  actions,
+  size,
+  tone,
+  divider = true,
+  children,
+  className,
+  mainClassName,
+}: ConnectorSetupPageProps) {
+  return (
+    <Main className={cn("min-h-screen", mainClassName)}>
+      <PageHeader
+        title={title}
+        label={label}
+        description={description}
+        actions={actions}
+        size={size}
+        tone={tone}
+        divider={divider}
+        className={SETUP_WIDE_COLUMN}
+      />
+      <PageContent className={cn(className, SETUP_WIDE_COLUMN)}>
+        {children}
+      </PageContent>
+    </Main>
+  );
+}
+
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-lf0TTCjm' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-L2I8ryza' (errno=Operation not permitted)
+import "server-only";
+import type { Metadata } from "next";
+import { revalidatePath } from "next/cache";
+import Link from "next/link";
+import { Button } from "./components/ui/button";
+import { Input } from "./components/ui/input";
+import { FieldGroup, Field, FieldLabel } from "./components/ui/field";
+import { ConnectorSetupPage } from "@cinatra-ai/sdk-ui/connector-setup-page";
+// Shared design-system Tabs primitive (cinatra-ai/cinatra#1103) — own subpath
+// only, deliberately NOT re-exported from `/marketplace` (route-graph ratchet).
+// TabsListRow is the shared under-header row primitive: it pairs the tablist
+// with the etched section rule so the composition is never hand-rolled (the
+// tablist contract forbids hand-rolling the TabsList+rule pairing).
+import { Tabs, TabsListRow, TabsTrigger, TabsContent } from "@cinatra-ai/sdk-ui/tabs";
+import { requireExtensionAction } from "@cinatra-ai/sdk-extensions";
+// Every host surface arrives through the host-bound deps slot (cinatra#172
+// Stage H3): widget auth-config from `@cinatra-ai/host:wordpress-widget-auth`,
+// the instance reads + remote webhook-subscription client + MCP adapter
+// status from `@cinatra-ai/host:wordpress-mcp` — no `@/lib/*` import. The
+// "use server" actions CANNOT close over the render-time ctx, hence the slot.
+import {
+  getWordPressAssistantDeps,
+  type WordPressMcpAdapterStatus,
+  type WordPressWebhookSubscription,
+} from "./deps";
+import { Badge } from "./components/ui/badge";
+import { CopyButton } from "./copy-button";
+
+export const dynamic = "force-dynamic";
+export const metadata: Metadata = { title: "WordPress Widget | Cinatra" };
+
+async function generateCredentialsAction() {
+  "use server";
+  await requireExtensionAction("@cinatra-ai/wordpress-assistant-connector", "manage");
+  getWordPressAssistantDeps().generateWidgetAuthConfig();
+  revalidatePath("/connectors/cinatra-ai/wordpress-assistant-connector/setup");
+}
+
+async function registerWebhooksAction(instanceId: string) {
+  "use server";
+  await requireExtensionAction("@cinatra-ai/wordpress-assistant-connector", "manage");
+  const instance = getWordPressAssistantDeps().readInstanceById(instanceId);
+  if (!instance) {
+    throw new Error("WordPress instance not found.");
+  }
+  const cinatraUrl =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.BETTER_AUTH_URL ??
+    "http://localhost:3000";
+  const targetUrl = `${cinatraUrl.replace(/\/+$/, "")}/api/webhooks/wordpress`;
+  await getWordPressAssistantDeps().registerWebhookSubscription(instance, {
+    event_type: "post_published",
+    target_url: targetUrl,
+    post_types: [],
+  });
+  revalidatePath("/connectors/cinatra-ai/wordpress-assistant-connector/setup");
+}
+
+async function deleteWebhookSubscriptionAction(instanceId: string, subscriptionId: string) {
+  "use server";
+  await requireExtensionAction("@cinatra-ai/wordpress-assistant-connector", "manage");
+  const instance = getWordPressAssistantDeps().readInstanceById(instanceId);
+  if (!instance) {
+    throw new Error("WordPress instance not found.");
+  }
+  await getWordPressAssistantDeps().removeWebhookSubscription(instance, subscriptionId);
+  revalidatePath("/connectors/cinatra-ai/wordpress-assistant-connector/setup");
+}
+
+export async function WordPressAssistantSettingsPage() {
+  // 'manage' (not 'read'): this render performs webhook-registration writes on
+  // load (the idempotent auto-register below), so it is a mutating surface and
+  // must gate on manage rights, not mere read visibility.
+  await requireExtensionAction("@cinatra-ai/wordpress-assistant-connector", "manage");
+  const config = getWordPressAssistantDeps().readWidgetAuthConfig();
+  const cinatraUrl =
+    process.env.NEXT_PUBLIC_APP_URL ??
+    process.env.BETTER_AUTH_URL ??
+    "http://localhost:3000";
+  const generatedAt = config?.generatedAt
+    ? new Date(config.generatedAt).toLocaleString()
+    : null;
+
+  // Auto-register webhooks for all configured instances on every page load.
+  // The WP endpoint returns 409 on duplicate — treated as success — so this is idempotent.
+  // Errors are swallowed; the "Register webhooks" button remains as manual retry fallback.
+  const instancesForAutoReg = getWordPressAssistantDeps().listInstances();
+  const targetUrlForAutoReg = `${cinatraUrl.replace(/\/+$/, "")}/api/webhooks/wordpress`;
+  await Promise.allSettled(
+    instancesForAutoReg.map((instance) =>
+      getWordPressAssistantDeps().registerWebhookSubscription(instance, {
+        event_type: "post_published",
+        target_url: targetUrlForAutoReg,
+        post_types: [],
+      }),
+    ),
+  );
+
+  return (
+    <ConnectorSetupPage
+      title="WordPress Widget"
+      description="Generate credentials for the Cinatra WordPress plugin (cinatra.php)."
+      divider={false}
+      className="flex flex-col gap-6 pb-8"
+    >
+      <Tabs defaultValue="credentials">
+        {/* TabsListRow renders the tablist paired with the etched section rule
+            that stretches from the last tab to the page edge (design-system
+            Tabs). The ConnectorSetupPage header's own divider is off via
+            divider={false} so the two rules never stack. */}
+        <TabsListRow>
+          <TabsTrigger value="credentials">Credentials</TabsTrigger>
+          <TabsTrigger value="mcp">MCP</TabsTrigger>
+          <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
+          {/* Help is the reserved tab — always last (app-connectors §II). */}
+          <TabsTrigger value="help">Help</TabsTrigger>
+        </TabsListRow>
+
+        <TabsContent value="credentials" className="mt-6">
+          <section className="soft-panel flex flex-col gap-4 p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col gap-1">
+                <h2 className="text-base font-semibold text-foreground">
+                  Plugin credentials
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {config
+                    ? `Last generated ${generatedAt}. Regenerating immediately invalidates the previous values.`
+                    : "No credentials generated yet. Click Generate credentials to create an API key and webhook secret."}
+                </p>
+              </div>
+              <form action={generateCredentialsAction}>
+                <Button type="submit" variant={config ? "outline" : "default"}>
+                  {config ? "Regenerate credentials" : "Generate credentials"}
+                </Button>
+              </form>
+            </div>
+
+            {config ? (
+              <FieldGroup className="border-t border-line pt-4">
+                <Field>
+                  <FieldLabel>Cinatra URL</FieldLabel>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      readOnly
+                      value={cinatraUrl}
+                      className="font-mono text-sm"
+                    />
+                    <CopyButton value={cinatraUrl} />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Paste into the WordPress plugin&apos;s{" "}
+                    <code>cinatra_url</code> field.
+                  </p>
+                </Field>
+                <Field>
+                  <FieldLabel>API key</FieldLabel>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      readOnly
+                      value={config.apiKey}
+                      className="font-mono text-sm"
+                    />
+                    <CopyButton value={config.apiKey} />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Paste into the WordPress plugin&apos;s{" "}
+                    <code>cinatra_api_key</code> field. Used as{" "}
+                    <code>Authorization: Bearer &lt;key&gt;</code> by the widget.
+                  </p>
+                </Field>
+                <Field>
+                  <FieldLabel>Webhook secret</FieldLabel>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      readOnly
+                      value={config.webhookSecret}
+                      className="font-mono text-sm"
+                    />
+                    <CopyButton value={config.webhookSecret} />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Paste into the WordPress plugin&apos;s{" "}
+                    <code>cinatra_webhook_secret</code> field. Used to sign{" "}
+                    <code>X-Cinatra-Sig-256</code> on outbound webhooks.
+                  </p>
+                </Field>
+              </FieldGroup>
+            ) : null}
+          </section>
+        </TabsContent>
+
+        {/* WordPress MCP Adapter status — per-instance list (multi-instance layout) */}
+        <TabsContent value="mcp" className="mx-auto mt-6 w-full max-w-xl">
+          <WordPressMcpAdapterSection />
+        </TabsContent>
+
+        {/* Webhook subscriptions — per-instance list (multi-instance layout) */}
+        <TabsContent value="webhooks" className="mx-auto mt-6 w-full max-w-xl">
+          <WebhookSubscriptionsSection />
+        </TabsContent>
+
+        {/* Help — reserved, always-last, read-only (no form, no Save). */}
+        <TabsContent value="help" className="mx-auto mt-6 w-full max-w-xl">
+          <section className="soft-panel flex w-full flex-col gap-3 p-6">
+            <h2 className="text-base font-semibold text-foreground">
+              Setup instructions
+            </h2>
+            <ol className="ml-5 mt-3 list-decimal text-sm text-muted-foreground [&>li+li]:mt-2">
+              <li>
+                Install the WordPress MCP Adapter plugin (recommended — enables AI
+                tool access).
+              </li>
+              <li>
+                Install the Cinatra plugin (
+                <code>dev/wordpress-plugin/cinatra.php</code>) on your
+                WordPress site.
+              </li>
+              <li>
+                Generate credentials in the <strong>Credentials</strong> tab
+                (creates an API key and webhook secret).
+              </li>
+              <li>
+                In WordPress, go to Administration &gt; Cinatra and paste the
+                three values.
+              </li>
+              <li>
+                A floating Cinatra button appears in the bottom-right corner of
+                every WP admin page.
+              </li>
+            </ol>
+          </section>
+        </TabsContent>
+      </Tabs>
+    </ConnectorSetupPage>
+  );
+}
+
+async function McpAdapterStatusHint({ status, siteUrl }: { status: WordPressMcpAdapterStatus; siteUrl: string }) {
+  if (status === "registered") {
+    if (getWordPressAssistantDeps().isPrivateUrl(siteUrl)) {
+      return (
+        <p className="text-xs text-muted-foreground">
+          Local/private URL — plugin is reachable but agents cannot use it because external LLM providers cannot connect to private addresses. Use a public URL or tunnel (e.g. Cloudflare Tunnel) to enable agent access.
+        </p>
+      );
+    }
+    return null;
+  }
+
+  const pluginsUrl = `${siteUrl.replace(/\/+$/, "")}/wp-admin/plugins.php`;
+
+  if (status === "not_installed") {
+    return (
+      <p className="text-xs text-muted-foreground">
+        Plugin not active.{" "}
+        <Button
+          asChild
+          variant="link"
+          className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
+        >
+          <Link href={pluginsUrl} target="_blank" rel="noreferrer">
+            Install WordPress/mcp-adapter
+          </Link>
+        </Button>{" "}
+        on this site and activate it.
+      </p>
+    );
+  }
+
+  if (status === "auth_error") {
+    return (
+      <p className="text-xs text-muted-foreground">
+        Credentials rejected. Check that the application password in{" "}
+        <Button
+          asChild
+          variant="link"
+          className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
+        >
+          <Link href="/configuration/llm?modal=wordpress">
+            WordPress connector administration
+          </Link>
+        </Button>{" "}
+        has permission to access the REST API.
+      </p>
+    );
+  }
+
+  // unreachable
+  return (
+    <p className="text-xs text-muted-foreground">
+      Site unreachable. Check that <code className="rounded-chip bg-surface-strong px-1 py-0.5">{siteUrl}</code> is accessible from this server.
+    </p>
+  );
+}
+
+async function WordPressMcpAdapterSection() {
+  const deps = getWordPressAssistantDeps();
+  const instances = deps.listInstances();
+
+  const instanceStatuses = await Promise.all(
+    instances.map(async (instance) => {
+      const endpoint = deps.resolveMcpEndpoint(instance.siteUrl);
+      const status = await deps.probeMcpAdapter(instance);
+      return { instance, endpoint, status };
+    })
+  );
+
+  return (
+    <section className="soft-panel flex flex-col gap-4 p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-base font-semibold text-foreground">
+            WordPress MCP Adapter
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Cinatra automatically registers the{" "}
+            <Button
+              asChild
+              variant="link"
+              className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
+            >
+              <Link
+                href="https://github.com/WordPress/mcp-adapter"
+                target="_blank"
+                rel="noreferrer"
+              >
+                WordPress/mcp-adapter
+              </Link>
+            </Button>{" "}
+            plugin as a parallel MCP server for each configured WordPress site.
+            Install the plugin on each WP site — once reachable, its tools are
+            available to all Cinatra agents automatically.
+          </p>
+        </div>
+        <Button
+          asChild
+          variant="outline"
+          className="h-auto shrink-0 rounded-control border-line bg-surface-strong px-4 py-2 text-foreground hover:border-foreground/30 hover:bg-surface-muted"
+        >
+          <Link href="/connectors/wordpress">Add MCP server</Link>
+        </Button>
+      </div>
+
+      {instanceStatuses.length === 0 ? (
+        <div className="rounded-card border border-line bg-surface p-4 text-sm text-muted-foreground">
+          No WordPress instances configured. Add a WordPress connector in{" "}
+          <Button
+            asChild
+            variant="link"
+            className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
+          >
+            <Link href="/configuration/llm?modal=wordpress">
+              Administration → LLM → WordPress
+            </Link>
+          </Button>{" "}
+          to enable the MCP adapter integration.
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {instanceStatuses.map(({ instance, endpoint, status }) => (
+            <div key={instance.id} className="rounded-card border border-line bg-surface p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-medium text-foreground">{instance.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    MCP endpoint:{" "}
+                    <code className="rounded-chip bg-surface-strong px-1 py-0.5 text-xs">
+                      {endpoint}
+                    </code>
+                  </p>
+                  <McpAdapterStatusHint status={status} siteUrl={instance.siteUrl} />
+                </div>
+                <Badge variant={status === "registered" ? (deps.isPrivateUrl(instance.siteUrl) ? "outline" : "default") : "secondary"}>
+                  {status === "registered" ? (deps.isPrivateUrl(instance.siteUrl) ? "Local only" : "Registered") : "Not detected"}
+                </Badge>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+async function WebhookSubscriptionsSection() {
+  const deps = getWordPressAssistantDeps();
+  const instances = deps.listInstances();
+
+  const instanceResults = await Promise.all(
+    instances.map(async (instance) => {
+      try {
+        const subscriptions = await deps.listWebhookSubscriptions(instance);
+        return {
+          instance,
+          subscriptions,
+          error: null as string | null,
+        };
+      } catch (error) {
+        return {
+          instance,
+          subscriptions: [] as WordPressWebhookSubscription[],
+          error: error instanceof Error ? error.message : "Unknown error while fetching subscriptions.",
+        };
+      }
+    }),
+  );
+
+  return (
+    <section className="soft-panel flex flex-col gap-4 p-6">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-base font-semibold text-foreground">
+          Webhook subscriptions
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Cinatra registers the events it wants through the WordPress plugin&apos;s{" "}
+          <code className="rounded-chip bg-surface-strong px-1 py-0.5 text-xs">cinatra/v1/webhooks</code>{" "}
+          REST API. Click <strong>Register webhooks</strong> to subscribe to <code>post_published</code>{" "}
+          on a configured WordPress instance. No manual copy-pasting required.
+        </p>
+      </div>
+
+      {instanceResults.length === 0 ? (
+        <div className="rounded-card border border-line bg-surface p-4 text-sm text-muted-foreground">
+          No WordPress instances configured. Add a WordPress connector in{" "}
+          <Button
+            asChild
+            variant="link"
+            className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
+          >
+            <Link href="/configuration/llm?modal=wordpress">
+              Administration → LLM → WordPress
+            </Link>
+          </Button>{" "}
+          before registering webhooks.
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {instanceResults.map(({ instance, subscriptions, error }) => {
+            const registerAction = registerWebhooksAction.bind(null, instance.id);
+            return (
+              <div
+                key={instance.id}
+                className="rounded-card border border-line bg-surface p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-col gap-1">
+                    <p className="text-sm font-medium text-foreground">{instance.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      <code className="rounded-chip bg-surface-strong px-1 py-0.5 text-xs">
+                        {instance.siteUrl}
+                      </code>
+                    </p>
+                  </div>
+                  <form action={registerAction}>
+                    <Button
+                      type="submit"
+                      variant={subscriptions.length === 0 && !error ? "default" : "outline"}
+                      size="sm"
+                    >
+                      Register webhooks
+                    </Button>
+                  </form>
+                </div>
+
+                {error ? (
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Could not fetch subscriptions: {error}
+                  </p>
+                ) : subscriptions.length === 0 ? (
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    No subscriptions registered yet.
+                  </p>
+                ) : (
+                  <ul className="mt-3 [&>li+li]:mt-2">
+                    {subscriptions.map((subscription) => {
+                      const deleteAction = deleteWebhookSubscriptionAction.bind(null, instance.id, subscription.id);
+                      return (
+                        <li
+                          key={subscription.id}
+                          className="flex items-start justify-between gap-3 rounded-control border border-line bg-surface-strong p-3"
+                        >
+                          <div className="flex min-w-0 flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="default">{subscription.event_type}</Badge>
+                              {subscription.post_types.length > 0 ? (
+                                <span className="text-xs text-muted-foreground">
+                                  post_types: {subscription.post_types.join(", ")}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">
+                                  post_types: all
+                                </span>
+                              )}
+                            </div>
+                            <p className="truncate text-xs text-muted-foreground">
+                              <code className="rounded-chip bg-surface px-1 py-0.5 text-xs">
+                                {subscription.target_url}
+                              </code>
+                            </p>
+                          </div>
+                          <form action={deleteAction}>
+                            <Button type="submit" variant="outline" size="sm">
+                              Delete
+                            </Button>
+                          </form>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
+codex
+I have the connector-specific rule and current implementation now. I’m pulling the content-width table text too, because Q3 hinges on the exact “forms” role language.
+exec
+/bin/zsh -lc "sed -n '705,790p' specs/app.html" in /Users/ordnas/Code/cinatra-ai/design
+ succeeded in 0ms:
+            <div style="width: 8px; height: 8px; border-radius: 2px; background: var(--muted); opacity: 0.5;"></div>
+            <div style="width: 1px; height: 12px; background: var(--line-strong);"></div>
+            <div style="width: 22px; height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.55;"></div>
+            <span style="color: var(--muted); opacity: 0.5; font-size: 9px;">&rsaquo;</span>
+            <div style="width: 32px; height: 5px; border-radius: 3px; background: var(--ink); opacity: 0.5;"></div>
+          </div>
+          <div style="flex: 1; display: flex; justify-content: center; padding: 12px;">
+            <div style="width: 90%; border: 1.5px dashed var(--blue); border-radius: 4px; background: rgba(54,78,129,0.05);"></div>
+          </div>
+          <div style="height: 15px; flex: none; border-top: 1px solid var(--line); background: var(--surface);"></div>
+        </div>
+      </div>
+      <figcaption style="margin-top: 8px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap;">
+        <span style="font-family: var(--font-sans); font-style: italic; font-weight: 800; font-size: 13px; color: var(--ink);">Full</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--muted);">max-w-7xl</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); opacity: 0.75;">80rem · 1280px</span>
+        <div style="flex-basis: 100%; margin-top: 5px; font-family: var(--font-body); font-size: 11.5px; line-height: 1.45; color: var(--muted);">The default full-width column — dashboards, lists, tables, settings, entity detail. Centred in the stage like every width — fluid below the cap, growing side margins above it.</div>
+      </figcaption>
+    </figure>
+
+    <figure style="margin: 0;">
+      <div style="border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; background: var(--paper); height: 148px; display: flex;">
+        <div style="width: 42px; flex: none; background: var(--sidebar); border-right: 1px solid var(--line); padding: 9px 8px; display: flex; flex-direction: column; gap: 6px;">
+          <div style="width: 15px; height: 15px; border-radius: 4px; background: var(--blue); opacity: 0.85;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.5; margin-top: 3px;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.3;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.3;"></div>
+        </div>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+          <div style="height: 25px; flex: none; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 5px; padding: 0 12px;">
+            <div style="width: 8px; height: 8px; border-radius: 2px; background: var(--muted); opacity: 0.5;"></div>
+            <div style="width: 1px; height: 12px; background: var(--line-strong);"></div>
+            <div style="width: 22px; height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.55;"></div>
+            <span style="color: var(--muted); opacity: 0.5; font-size: 9px;">&rsaquo;</span>
+            <div style="width: 32px; height: 5px; border-radius: 3px; background: var(--ink); opacity: 0.5;"></div>
+          </div>
+          <div style="flex: 1; display: flex; justify-content: center; padding: 12px;">
+            <div style="width: 54%; border: 1.5px dashed var(--blue); border-radius: 4px; background: rgba(54,78,129,0.05);"></div>
+          </div>
+          <div style="height: 15px; flex: none; border-top: 1px solid var(--line); background: var(--surface);"></div>
+        </div>
+      </div>
+      <figcaption style="margin-top: 8px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap;">
+        <span style="font-family: var(--font-sans); font-style: italic; font-weight: 800; font-size: 13px; color: var(--ink);">Wide</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--muted);">max-w-3xl</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); opacity: 0.75;">48rem · 768px</span>
+        <div style="flex-basis: 100%; margin-top: 5px; font-family: var(--font-body); font-size: 11.5px; line-height: 1.45; color: var(--muted);">The /chat thread — once a conversation exists, message stream and composer both cap here, centred. Also a deliberately narrowed detail or single-column page — a reading view, one settings group. Forms belong one step in, at max-w-xl.</div>
+      </figcaption>
+    </figure>
+
+    <figure style="margin: 0;">
+      <div style="border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; background: var(--paper); height: 148px; display: flex;">
+        <div style="width: 42px; flex: none; background: var(--sidebar); border-right: 1px solid var(--line); padding: 9px 8px; display: flex; flex-direction: column; gap: 6px;">
+          <div style="width: 15px; height: 15px; border-radius: 4px; background: var(--blue); opacity: 0.85;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.5; margin-top: 3px;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.3;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.3;"></div>
+        </div>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+          <div style="height: 25px; flex: none; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 5px; padding: 0 12px;">
+            <div style="width: 8px; height: 8px; border-radius: 2px; background: var(--muted); opacity: 0.5;"></div>
+            <div style="width: 1px; height: 12px; background: var(--line-strong);"></div>
+            <div style="width: 22px; height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.55;"></div>
+            <span style="color: var(--muted); opacity: 0.5; font-size: 9px;">&rsaquo;</span>
+            <div style="width: 32px; height: 5px; border-radius: 3px; background: var(--ink); opacity: 0.5;"></div>
+          </div>
+          <div style="flex: 1; display: flex; justify-content: center; padding: 12px;">
+            <div style="width: 47%; border: 1.5px dashed var(--blue); border-radius: 4px; background: rgba(54,78,129,0.05);"></div>
+          </div>
+          <div style="height: 15px; flex: none; border-top: 1px solid var(--line); background: var(--surface);"></div>
+        </div>
+      </div>
+      <figcaption style="margin-top: 8px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap;">
+        <span style="font-family: var(--font-sans); font-style: italic; font-weight: 800; font-size: 13px; color: var(--ink);">Medium</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--muted);">max-w-2xl</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); opacity: 0.75;">42rem · 672px</span>
+        <div style="flex-basis: 100%; margin-top: 5px; font-family: var(--font-body); font-size: 11.5px; line-height: 1.45; color: var(--muted);">The /chat landing prompt (empty state) — one step in from the conversation so the first prompt reads as a focused hero — and the /setup · onboarding column.</div>
+      </figcaption>
+    </figure>
+
+    <figure style="margin: 0;">
+      <div style="border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; background: var(--paper); height: 148px; display: flex;">
+        <div style="width: 42px; flex: none; background: var(--sidebar); border-right: 1px solid var(--line); padding: 9px 8px; display: flex; flex-direction: column; gap: 6px;">
+          <div style="width: 15px; height: 15px; border-radius: 4px; background: var(--blue); opacity: 0.85;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.5; margin-top: 3px;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.3;"></div>
+
+exec
+/bin/zsh -lc 'rg -n "Forms belong|Narrow|Wide|max-w-xl|max-w-3xl" specs/app.html specs/app-connectors.html' in /Users/ordnas/Code/cinatra-ai/design
+ succeeded in 0ms:
+specs/app-connectors.html:336:    <div class="source">Wide · single &amp; multi-connection</div>
+specs/app-connectors.html:338:  <p style="font-size: 13.5px; color: var(--muted); margin: -8px 0 20px; max-width: 66ch; line-height: 1.55;"><b style="color:var(--ink);font-weight:600;">One generated form per connector.</b> A connector's setup page is rendered from its config schema — a single generic form, never per-connector layout. It sits in the <b style="color:var(--ink);font-weight:600;">Wide content width</b> (the <code>max-w-3xl</code> · 768px column defined in the Application Design system, §VII Content widths) and splits into two columns: a <b style="color:var(--ink);font-weight:600;">wider left column</b> holding the configuration fields, and a <b style="color:var(--ink);font-weight:600;">narrower right column</b> holding the <b style="color:var(--ink);font-weight:600;">Connection status</b> card. The page header carries the connector name and the <em>Connector setup</em> subtitle; the status badge that once sat top-right now lives in that card. Fields are stacked and single-column; each is optional unless the schema marks it required. Most connectors hold a <b style="color:var(--ink);font-weight:600;">single connection</b> (below); a connector that holds <b style="color:var(--ink);font-weight:600;">many</b> — like the A2A Server — adds a <b style="color:var(--ink);font-weight:600;">Setup · Connections</b> tablist over the same column (see <em>Multiple connections</em>).</p>
+specs/app-connectors.html:346:    <div style="padding: 8px 14px; background: var(--surface); border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; font-weight: 700;">Example — connector setup page · Wide column</div>
+specs/app-connectors.html:444:  <p style="max-width: 66ch; font-family: var(--font-body); font-weight: 400; font-size: 13.5px; line-height: 1.55; color: var(--muted); margin: 12px 0 6px;">The page holds to the <b style="color:var(--ink);font-weight:600;">Wide</b> column and never spans full width. Inputs are pure-white with the navy hairline border (design-system Rules of the road #8); selects mirror that chrome with a trailing chevron. The two actions sit <b style="color:var(--ink);font-weight:600;">side by side, never stacked</b> — an icon-led <b style="color:var(--blue);font-weight:600;">Connect</b> (indigo primary, the plug from the Connected badge) and <b style="color:var(--red);font-weight:600;">Disconnect</b> (<code>destructive</code>, red-on-tint, the unplug from the Disconnected badge); the actions speak the same connect / disconnect language as the status badge. <b style="color:var(--ink);font-weight:600;">Disconnect is disabled until the connector is connected</b> — there is nothing to disconnect otherwise. Disconnecting is destructive, so it opens an <b style="color:var(--ink);font-weight:600;">AlertDialog</b> on the <code>--paper</code> ground with a strong hairline header rule — a <em>Cancel</em> outline beside the red <em>Disconnect</em> confirm (same unplug icon) — never a bare browser prompt; its copy stays connector-neutral. The right <b style="color:var(--ink);font-weight:600;">Connection status</b> card reuses the extension detail info-card chrome (<code>--surface</code>, hairline, its heading over a divider) and carries the status <b style="color:var(--ink);font-weight:600;">badge with both icon and label</b> plus the <em>Check</em> action beneath it. Each field keeps its own helper text from the connector's schema; the form drops the connector blurb, the per-action section labels, and the connection-check helper line.</p>
+specs/app-connectors.html:447:  <p style="font-size: 13.5px; color: var(--muted); margin: 0 0 18px; max-width: 66ch; line-height: 1.55;">A few connectors hold <b style="color:var(--ink);font-weight:600;">many connections</b> in one extension — the <b style="color:var(--ink);font-weight:600;">A2A Server</b> connector, for instance, holds one server per connection. These add a <b style="color:var(--ink);font-weight:600;">Setup · Connections</b> tablist beneath the page header — underline tabs per the design system (VII of the Application Design system, Components · Tabs) — over the same Wide column. <b style="color:var(--ink);font-weight:600;">Setup</b> adds a connection and rolls up their status; <b style="color:var(--ink);font-weight:600;">Connections</b> lists them.</p>
+specs/app-connectors.html:571:  <p style="font-size: 13.5px; color: var(--muted); margin: 0 0 18px; max-width: 66ch; line-height: 1.55;">Either shape may also carry <b style="color:var(--ink);font-weight:600;">extra configuration tabs</b> — a connector's own settings beyond connecting. The OpenAI connector, for instance, adds a <b style="color:var(--ink);font-weight:600;">Local shell</b> tab for its sandboxed-shell policy. Each custom tab takes the connector's own <b style="color:var(--ink);font-weight:600;">label</b> and sits <b style="color:var(--ink);font-weight:600;">after Setup</b> (and Connections), in the order the connector declares them. A connector with no extra tabs and one connection shows no tablist at all; the first custom tab is what introduces one. The <b style="color:var(--ink);font-weight:600;">page header and tablist stay at the Wide column</b>, but a custom tab's <b style="color:var(--ink);font-weight:600;">content narrows to the Narrow width</b> (<code>max-w-xl</code> · 576px, §VII) — a long single-column settings form reads better tighter — left-aligned beneath the tabs.</p>
+specs/app-connectors.html:573:  <p style="font-size: 13.5px; color: var(--muted); margin: 0 0 18px; max-width: 66ch; line-height: 1.55;">One tab label is <b style="color:var(--ink);font-weight:600;">reserved</b>. A connector may add a <b style="color:var(--ink);font-weight:600;">Help</b> tab carrying its own <b style="color:var(--ink);font-weight:600;">setup how-to</b> — the prose, prerequisites and links a user needs to connect it, <b style="color:var(--ink);font-weight:600;">read-only</b> (no form, no <em>Save</em>). It obeys every custom-tab frame rule — its own tab in the Wide strip, content at the Narrow width — but its position is fixed: <b style="color:var(--ink);font-weight:600;">Help always sits last</b>, after Setup, after Connections, and after every other custom tab. A connector that only needs to explain itself may carry Help and no other tab; then Help is what introduces the tablist. Reserving the final slot keeps <em>“how do I set this up?”</em> in the same place on every connector.</p>
+specs/app-connectors.html:577:    <div style="padding: 8px 14px; background: var(--surface); border-bottom: 1px solid var(--line); font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; font-weight: 700;">Example — additional config tab · Narrow content under Wide chrome</div>
+specs/app-connectors.html:580:      <!-- header + tablist stay at the Wide column -->
+specs/app-connectors.html:594:        <!-- the custom tab's content narrows to the Narrow width (576px), flush-left under the tabs -->
+specs/app-connectors.html:650:  <p style="max-width: 66ch; font-family: var(--font-body); font-weight: 400; font-size: 13.5px; line-height: 1.55; color: var(--muted); margin: 12px 0 6px;">A non-Help custom tab is the one place the setup page leaves the <b style="color:var(--ink);font-weight:600;">Wide</b> column: the header and tab strip stay Wide so the tabs sit in the same place across tabs, while the settings themselves drop to <b style="color:var(--ink);font-weight:600;">Narrow</b> (576px), flush-left under the tablist. The tab carries the connector's own fields in a single column — <b style="color:var(--ink);font-weight:600;">switches</b> for immediate-effect toggles (indigo when on), inputs, and <b style="color:var(--ink);font-weight:600;">add / remove list editors</b> for path, host and prefix lists — ending in its own <em>Save</em>.</p>
+specs/app.html:748:        <span style="font-family: var(--font-sans); font-style: italic; font-weight: 800; font-size: 13px; color: var(--ink);">Wide</span>
+specs/app.html:749:        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--muted);">max-w-3xl</span>
+specs/app.html:751:        <div style="flex-basis: 100%; margin-top: 5px; font-family: var(--font-body); font-size: 11.5px; line-height: 1.45; color: var(--muted);">The /chat thread — once a conversation exists, message stream and composer both cap here, centred. Also a deliberately narrowed detail or single-column page — a reading view, one settings group. Forms belong one step in, at max-w-xl.</div>
+specs/app.html:808:        <span style="font-family: var(--font-sans); font-style: italic; font-weight: 800; font-size: 13px; color: var(--ink);">Narrow</span>
+specs/app.html:809:        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--muted);">max-w-xl</span>
+
+codex
+The exact table language confirms the width split: Wide is the shell/chrome width, and forms move one step inward. I have enough context for the verdict.
+exec
+/bin/zsh -lc "sed -n '790,835p' specs/app.html" in /Users/ordnas/Code/cinatra-ai/design
+ succeeded in 0ms:
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.3;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.3;"></div>
+        </div>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+          <div style="height: 25px; flex: none; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 5px; padding: 0 12px;">
+            <div style="width: 8px; height: 8px; border-radius: 2px; background: var(--muted); opacity: 0.5;"></div>
+            <div style="width: 1px; height: 12px; background: var(--line-strong);"></div>
+            <div style="width: 22px; height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.55;"></div>
+            <span style="color: var(--muted); opacity: 0.5; font-size: 9px;">&rsaquo;</span>
+            <div style="width: 32px; height: 5px; border-radius: 3px; background: var(--ink); opacity: 0.5;"></div>
+          </div>
+          <div style="flex: 1; display: flex; justify-content: center; padding: 12px;">
+            <div style="width: 41%; border: 1.5px dashed var(--blue); border-radius: 4px; background: rgba(54,78,129,0.05);"></div>
+          </div>
+          <div style="height: 15px; flex: none; border-top: 1px solid var(--line); background: var(--surface);"></div>
+        </div>
+      </div>
+      <figcaption style="margin-top: 8px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap;">
+        <span style="font-family: var(--font-sans); font-style: italic; font-weight: 800; font-size: 13px; color: var(--ink);">Narrow</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--muted);">max-w-xl</span>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--muted); opacity: 0.75;">36rem · 576px</span>
+        <div style="flex-basis: 100%; margin-top: 5px; font-family: var(--font-body); font-size: 11.5px; line-height: 1.45; color: var(--muted);">Single-column forms and control stacks — auth / connect cards, sign-in, OAuth authorise, the LLM default-model pickers. The home for single-column form and control layouts.</div>
+      </figcaption>
+    </figure>
+
+    <figure style="margin: 0;">
+      <div style="border: 1px solid var(--line-strong); border-radius: 8px; overflow: hidden; background: var(--paper); height: 148px; display: flex;">
+        <div style="width: 42px; flex: none; background: var(--sidebar); border-right: 1px solid var(--line); padding: 9px 8px; display: flex; flex-direction: column; gap: 6px;">
+          <div style="width: 15px; height: 15px; border-radius: 4px; background: var(--blue); opacity: 0.85;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.5; margin-top: 3px;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.3;"></div>
+          <div style="height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.3;"></div>
+        </div>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+          <div style="height: 25px; flex: none; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 5px; padding: 0 12px;">
+            <div style="width: 8px; height: 8px; border-radius: 2px; background: var(--muted); opacity: 0.5;"></div>
+            <div style="width: 1px; height: 12px; background: var(--line-strong);"></div>
+            <div style="width: 22px; height: 5px; border-radius: 3px; background: var(--muted); opacity: 0.55;"></div>
+            <span style="color: var(--muted); opacity: 0.5; font-size: 9px;">&rsaquo;</span>
+            <div style="width: 32px; height: 5px; border-radius: 3px; background: var(--ink); opacity: 0.5;"></div>
+          </div>
+          <div style="flex: 1; display: flex; justify-content: center; padding: 12px;">
+            <div style="width: 32%; border: 1.5px dashed var(--blue); border-radius: 4px; background: rgba(54,78,129,0.05);"></div>
+          </div>
+          <div style="height: 15px; flex: none; border-top: 1px solid var(--line); background: var(--surface);"></div>
+        </div>
+
+codex
+**Q1 — VIOLATION.** Narrow content is flush-left inside the Wide shell, not centered. Spec says: “page header and tablist stay at the Wide column” but custom-tab content “narrows to the Narrow width (`max-w-xl` · 576px) … left-aligned beneath the tabs.” The example markup uses `style="max-width: 576px; margin-top: 24px;"`, not `margin: auto`, and labels it “flush-left under the tabs.” Conformant: `mt-6 w-full max-w-xl`, no `mx-auto`.
+
+**Q2 — VIOLATION.** `<section className="soft-panel ...">` wrapping a whole tab’s content is not conformant. Spec says “the form is never wrapped in its own card,” and the config-tab example places fields directly in the narrow tab container. This forbids a whole-form/whole-tab card frame. It does not categorically ban real subordinate cards for repeated/status records; the spec itself says the Connections tab stacks each connection as “its own card.” But a `soft-panel` around Credentials/MCP/Webhooks/Help as the tab frame is the violation.
+
+**Q3 — VIOLATION.** Credentials should be Narrow, flush-left. Since wp-assistant has no Setup/Connections connection surface, Credentials is a form-only custom/config tab, not the spec’s Wide two-column Setup tab. §VII says Wide includes “Forms belong one step in, at `max-w-xl`,” and Narrow is “Single-column forms and control stacks.” Connector spec says custom-tab content “narrows to the Narrow width” and “settings themselves drop to Narrow (576px), flush-left under the tablist.” Conformant: Credentials uses `max-w-xl` flush-left, not Wide `max-w-3xl`, and no whole-tab `soft-panel`.
+tokens used
+25.297
+**Q1 — VIOLATION.** Narrow content is flush-left inside the Wide shell, not centered. Spec says: “page header and tablist stay at the Wide column” but custom-tab content “narrows to the Narrow width (`max-w-xl` · 576px) … left-aligned beneath the tabs.” The example markup uses `style="max-width: 576px; margin-top: 24px;"`, not `margin: auto`, and labels it “flush-left under the tabs.” Conformant: `mt-6 w-full max-w-xl`, no `mx-auto`.
+
+**Q2 — VIOLATION.** `<section className="soft-panel ...">` wrapping a whole tab’s content is not conformant. Spec says “the form is never wrapped in its own card,” and the config-tab example places fields directly in the narrow tab container. This forbids a whole-form/whole-tab card frame. It does not categorically ban real subordinate cards for repeated/status records; the spec itself says the Connections tab stacks each connection as “its own card.” But a `soft-panel` around Credentials/MCP/Webhooks/Help as the tab frame is the violation.
+
+**Q3 — VIOLATION.** Credentials should be Narrow, flush-left. Since wp-assistant has no Setup/Connections connection surface, Credentials is a form-only custom/config tab, not the spec’s Wide two-column Setup tab. §VII says Wide includes “Forms belong one step in, at `max-w-xl`,” and Narrow is “Single-column forms and control stacks.” Connector spec says custom-tab content “narrows to the Narrow width” and “settings themselves drop to Narrow (576px), flush-left under the tablist.” Conformant: Credentials uses `max-w-xl` flush-left, not Wide `max-w-3xl`, and no whole-tab `soft-panel`.
