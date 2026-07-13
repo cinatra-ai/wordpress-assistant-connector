@@ -5,7 +5,13 @@ import Link from "next/link";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { FieldGroup, Field, FieldLabel } from "./components/ui/field";
-import { Main, PageHeader, PageContent } from "@cinatra-ai/sdk-ui/marketplace";
+import { ConnectorSetupPage } from "@cinatra-ai/sdk-ui/connector-setup-page";
+// Shared design-system Tabs primitive (cinatra-ai/cinatra#1103) — own subpath
+// only, deliberately NOT re-exported from `/marketplace` (route-graph ratchet).
+// TabsListRow is the shared under-header row primitive: it pairs the tablist
+// with the etched section rule so the composition is never hand-rolled (the
+// tablist contract forbids hand-rolling the TabsList+rule pairing).
+import { Tabs, TabsListRow, TabsTrigger, TabsContent } from "@cinatra-ai/sdk-ui/tabs";
 import { requireExtensionAction } from "@cinatra-ai/sdk-extensions";
 // Every host surface arrives through the host-bound deps slot (cinatra#172
 // Stage H3): widget auth-config from `@cinatra-ai/host:wordpress-widget-auth`,
@@ -91,31 +97,43 @@ export async function WordPressAssistantSettingsPage() {
   );
 
   return (
-    <Main className="min-h-screen">
-      <PageHeader
-        title="WordPress Widget"
-        description="Generate credentials for the Cinatra WordPress plugin (cinatra.php)."
-      />
-      <PageContent className="flex flex-col gap-6 pb-8">
-        <div className="flex items-start gap-6">
-          <section className="soft-panel flex min-w-0 flex-1 flex-col gap-4 p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-base font-semibold text-foreground">
-                  Plugin credentials
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {config
-                    ? `Last generated ${generatedAt}. Regenerating immediately invalidates the previous values.`
-                    : "No credentials generated yet. Click Generate credentials to create an API key and webhook secret."}
-                </p>
-              </div>
-              <form action={generateCredentialsAction}>
-                <Button type="submit" variant={config ? "outline" : "default"}>
-                  {config ? "Regenerate credentials" : "Generate credentials"}
-                </Button>
-              </form>
-            </div>
+    <ConnectorSetupPage
+      title="WordPress Widget"
+      description="Generate credentials for the Cinatra WordPress plugin (cinatra.php)."
+      divider={false}
+      className="flex flex-col gap-6 pb-8"
+    >
+      <Tabs defaultValue="setup">
+        {/* TabsListRow renders the tablist paired with the etched section rule
+            that stretches from the last tab to the page edge (design-system
+            Tabs). The ConnectorSetupPage header's own divider is off via
+            divider={false} so the two rules never stack. */}
+        <TabsListRow>
+          {/* "Setup" is the primary/overview tab (app-connectors.html §II —
+              the setup page's primary tab is labelled "Setup"). */}
+          <TabsTrigger value="setup">Setup</TabsTrigger>
+          <TabsTrigger value="mcp">MCP</TabsTrigger>
+          <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
+          {/* Help is the reserved tab — always last (app-connectors §II). */}
+          <TabsTrigger value="help">Help</TabsTrigger>
+        </TabsListRow>
+
+        <TabsContent value="setup" className="mt-6 w-full max-w-xl">
+          {/* Card-less, Narrow (max-w-xl · 576px), flush-left under the tablist:
+              this connector has no Setup/Connections connection surface, so the
+              Setup tab is a form-only config tab. Per app-connectors.html §II a
+              custom tab's content "narrows to the Narrow width (max-w-xl ·
+              576px) … flush-left under the tabs" and "the form is never wrapped
+              in its own card". No mx-auto (that would centre it and break the
+              header↔content left-edge alignment); no soft-panel wrapper. The
+              in-content section heading is dropped per the owner's review
+              (2026-07-10): the tab label already names the section. */}
+          <section className="flex flex-col gap-4">
+            <p className="text-sm text-muted-foreground">
+              {config
+                ? `Last generated ${generatedAt}. Regenerating immediately invalidates the previous values.`
+                : "No credentials generated yet. Click Generate credentials to create an API key and webhook secret."}
+            </p>
 
             {config ? (
               <FieldGroup className="border-t border-line pt-4">
@@ -168,13 +186,35 @@ export async function WordPressAssistantSettingsPage() {
                 </Field>
               </FieldGroup>
             ) : null}
-          </section>
 
-          <section className="soft-panel w-1/3 shrink-0 flex-col gap-3 p-6">
-            <h2 className="text-base font-semibold text-foreground">
-              Setup instructions
-            </h2>
-            <ol className="ml-5 mt-3 list-decimal text-sm text-muted-foreground [&>li+li]:mt-2">
+            {/* Contract rule: the action button sits at the END of the tab
+                content, below the fields — matching the spec config-tab render
+                where the primary action closes the content ("ending in its own
+                Save", app-connectors.html §II). */}
+            <form action={generateCredentialsAction} className="mt-2">
+              <Button type="submit" variant={config ? "outline" : "default"}>
+                {config ? "Regenerate credentials" : "Generate credentials"}
+              </Button>
+            </form>
+          </section>
+        </TabsContent>
+
+        {/* WordPress MCP Adapter status — per-instance list. Narrow (max-w-xl),
+            flush-left under the tablist (no mx-auto). */}
+        <TabsContent value="mcp" className="mt-6 w-full max-w-xl">
+          <WordPressMcpAdapterSection />
+        </TabsContent>
+
+        {/* Webhook subscriptions — per-instance list. Narrow, flush-left. */}
+        <TabsContent value="webhooks" className="mt-6 w-full max-w-xl">
+          <WebhookSubscriptionsSection />
+        </TabsContent>
+
+        {/* Help — reserved, always-last, read-only (no form, no Save). Narrow,
+            flush-left, card-less (§II custom-tab frame rule). */}
+        <TabsContent value="help" className="mt-6 w-full max-w-xl">
+          <section className="flex w-full flex-col gap-3">
+            <ol className="ml-5 list-decimal text-sm text-muted-foreground [&>li+li]:mt-2">
               <li>
                 Install the WordPress MCP Adapter plugin (recommended — enables AI
                 tool access).
@@ -185,8 +225,8 @@ export async function WordPressAssistantSettingsPage() {
                 WordPress site.
               </li>
               <li>
-                Generate credentials above (creates an API key and webhook
-                secret).
+                Generate credentials in the <strong>Setup</strong> tab
+                (creates an API key and webhook secret).
               </li>
               <li>
                 In WordPress, go to Administration &gt; Cinatra and paste the
@@ -198,14 +238,9 @@ export async function WordPressAssistantSettingsPage() {
               </li>
             </ol>
           </section>
-        </div>
-
-        {/* WordPress MCP Adapter status */}
-        <WordPressMcpAdapterSection />
-        {/* Webhook subscriptions */}
-        <WebhookSubscriptionsSection />
-      </PageContent>
-    </Main>
+        </TabsContent>
+      </Tabs>
+    </ConnectorSetupPage>
   );
 }
 
@@ -267,7 +302,10 @@ async function McpAdapterStatusHint({ status, siteUrl }: { status: WordPressMcpA
   );
 }
 
-async function WordPressMcpAdapterSection() {
+// Exported for the settings-page render test (pins the removed heading + the
+// always-visible empty-state CTA). Not re-exported from the package index, so
+// the public surface is unchanged.
+export async function WordPressMcpAdapterSection() {
   const deps = getWordPressAssistantDeps();
   const instances = deps.listInstances();
 
@@ -280,54 +318,39 @@ async function WordPressMcpAdapterSection() {
   );
 
   return (
-    <section className="soft-panel flex flex-col gap-4 p-6">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h2 className="text-base font-semibold text-foreground">
-            WordPress MCP Adapter
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Cinatra automatically registers the{" "}
-            <Button
-              asChild
-              variant="link"
-              className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
-            >
-              <Link
-                href="https://github.com/WordPress/mcp-adapter"
-                target="_blank"
-                rel="noreferrer"
-              >
-                WordPress/mcp-adapter
-              </Link>
-            </Button>{" "}
-            plugin as a parallel MCP server for each configured WordPress site.
-            Install the plugin on each WP site — once reachable, its tools are
-            available to all Cinatra agents automatically.
-          </p>
-        </div>
+    // Card-less tab content (§II: "the form is never wrapped in its own card").
+    // The per-instance rows below keep their own subordinate record cards.
+    // The in-content section heading ("WordPress MCP Adapter") is dropped per
+    // the owner's review (2026-07-10): the tab label already names the section.
+    <section className="flex flex-col gap-4">
+      <p className="text-sm text-muted-foreground">
+        Cinatra automatically registers the{" "}
         <Button
           asChild
-          variant="outline"
-          className="h-auto shrink-0 rounded-control border-line bg-surface-strong px-4 py-2 text-foreground hover:border-foreground/30 hover:bg-surface-muted"
+          variant="link"
+          className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
         >
-          <Link href="/connectors/wordpress">Add MCP server</Link>
-        </Button>
-      </div>
+          <Link
+            href="https://github.com/WordPress/mcp-adapter"
+            target="_blank"
+            rel="noreferrer"
+          >
+            WordPress/mcp-adapter
+          </Link>
+        </Button>{" "}
+        plugin as a parallel MCP server for each configured WordPress site.
+        Install the plugin on each WP site — once reachable, its tools are
+        available to all Cinatra agents automatically.
+      </p>
 
       {instanceStatuses.length === 0 ? (
+        // Empty state: no competing add-link here — "Add MCP server" below is
+        // the single add-a-site CTA (kept always-visible per §II: the
+        // add-a-connection action is always available).
         <div className="rounded-card border border-line bg-surface p-4 text-sm text-muted-foreground">
-          No WordPress instances configured. Add a WordPress connector in{" "}
-          <Button
-            asChild
-            variant="link"
-            className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
-          >
-            <Link href="/configuration/llm?modal=wordpress">
-              Administration → LLM → WordPress
-            </Link>
-          </Button>{" "}
-          to enable the MCP adapter integration.
+          No WordPress sites are connected yet. Use{" "}
+          <strong className="font-medium text-foreground">Add MCP server</strong>{" "}
+          below to connect one.
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -352,11 +375,31 @@ async function WordPressMcpAdapterSection() {
           ))}
         </div>
       )}
+
+      {/* "Add MCP server" closes the tab content — it renders OUTSIDE the
+          instances conditional above, so it is ALWAYS shown, including the
+          no-sites-connected empty state (owner review Q, 2026-07-10). That is
+          intentional and spec-correct: it is the add-a-connection action, which
+          app-connectors.html §II keeps always available ("Connect adds one …
+          Connect is always available"). It is the single add-a-site CTA (the
+          empty state above no longer duplicates it), and it sits at the END of
+          the tab content (§II — the primary action closes the content). */}
+      <div className="mt-2">
+        <Button
+          asChild
+          variant="outline"
+          className="h-auto rounded-control border-line bg-surface-strong px-4 py-2 text-foreground hover:border-foreground/30 hover:bg-surface-muted"
+        >
+          <Link href="/connectors/wordpress">Add MCP server</Link>
+        </Button>
+      </div>
     </section>
   );
 }
 
-async function WebhookSubscriptionsSection() {
+// Exported for the settings-page render test (pins the removed heading + the
+// rewritten plain-language copy). Not re-exported from the package index.
+export async function WebhookSubscriptionsSection() {
   const deps = getWordPressAssistantDeps();
   const instances = deps.listInstances();
 
@@ -380,32 +423,23 @@ async function WebhookSubscriptionsSection() {
   );
 
   return (
-    <section className="soft-panel flex flex-col gap-4 p-6">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-base font-semibold text-foreground">
-          Webhook subscriptions
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Cinatra registers the events it wants through the WordPress plugin&apos;s{" "}
-          <code className="rounded-chip bg-surface-strong px-1 py-0.5 text-xs">cinatra/v1/webhooks</code>{" "}
-          REST API. Click <strong>Register webhooks</strong> to subscribe to <code>post_published</code>{" "}
-          on a configured WordPress instance. No manual copy-pasting required.
-        </p>
-      </div>
+    // Card-less tab content (§II: "the form is never wrapped in its own card").
+    // The per-instance rows below keep their own subordinate record cards.
+    // Card-less; heading dropped and copy rewritten in plain user language per
+    // the owner's review (2026-07-10) — describe what the user gets, not the
+    // REST/subscription mechanism.
+    <section className="flex flex-col gap-4">
+      <p className="text-sm text-muted-foreground">
+        Keep Cinatra in step with your site automatically. Once a WordPress
+        site is connected, Cinatra is notified the moment a new post is
+        published there, so your agents can act on it straight away — nothing
+        to copy or paste, and no changes needed on your side.
+      </p>
 
       {instanceResults.length === 0 ? (
         <div className="rounded-card border border-line bg-surface p-4 text-sm text-muted-foreground">
-          No WordPress instances configured. Add a WordPress connector in{" "}
-          <Button
-            asChild
-            variant="link"
-            className="inline h-auto whitespace-normal p-0 text-[length:inherit] font-normal text-inherit underline underline-offset-2 hover:text-foreground"
-          >
-            <Link href="/configuration/llm?modal=wordpress">
-              Administration → LLM → WordPress
-            </Link>
-          </Button>{" "}
-          before registering webhooks.
+          No WordPress sites are connected yet. Connect one to start getting
+          updates when new posts are published.
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -416,24 +450,13 @@ async function WebhookSubscriptionsSection() {
                 key={instance.id}
                 className="rounded-card border border-line bg-surface p-4"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm font-medium text-foreground">{instance.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      <code className="rounded-chip bg-surface-strong px-1 py-0.5 text-xs">
-                        {instance.siteUrl}
-                      </code>
-                    </p>
-                  </div>
-                  <form action={registerAction}>
-                    <Button
-                      type="submit"
-                      variant={subscriptions.length === 0 && !error ? "default" : "outline"}
-                      size="sm"
-                    >
-                      Register webhooks
-                    </Button>
-                  </form>
+                <div className="flex flex-col gap-1">
+                  <p className="text-sm font-medium text-foreground">{instance.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    <code className="rounded-chip bg-surface-strong px-1 py-0.5 text-xs">
+                      {instance.siteUrl}
+                    </code>
+                  </p>
                 </div>
 
                 {error ? (
@@ -482,6 +505,19 @@ async function WebhookSubscriptionsSection() {
                     })}
                   </ul>
                 )}
+
+                {/* Contract rule: the per-instance action closes the card
+                    content, below the subscription list (app-connectors.html
+                    §II — the action ends the content, never heads it). */}
+                <form action={registerAction} className="mt-3">
+                  <Button
+                    type="submit"
+                    variant={subscriptions.length === 0 && !error ? "default" : "outline"}
+                    size="sm"
+                  >
+                    Register webhooks
+                  </Button>
+                </form>
               </div>
             );
           })}
