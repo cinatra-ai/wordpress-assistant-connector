@@ -29,6 +29,23 @@ import { CopyButton } from "./copy-button";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "WordPress Widget | Cinatra" };
 
+// The dedicated `/api/webhooks/wordpress` receiver on the Cinatra side has
+// been retired — the WordPress plugin no longer posts publish events there.
+// The plugin now delivers publish events straight to Cinatra's generic
+// inbound-webhook route using a server-issued binding id it already holds
+// from its own connection setup, so this connector's job is narrower than it
+// used to be: it still tells the site which post types should raise the
+// event (via the same remote `cinatra/v1/webhooks` subscription API), but the
+// `target_url` it registers is no longer where deliveries actually go — the
+// plugin computes its own delivery address independently. This constant is
+// kept pointed at the SAME generic route path prefix the plugin itself now
+// uses (matching the path Cinatra core declares for WordPress's
+// post-published hook) so the stored record reflects the current mechanism,
+// even though — without a per-site binding id this connector has no way to
+// obtain — it is informational rather than a URL anything actually posts to.
+const WORDPRESS_PUBLISH_WEBHOOK_PATH =
+  "/webhook/cinatra-ai/wordpress-mcp-connector/post-published";
+
 async function generateCredentialsAction() {
   "use server";
   await requireExtensionAction("@cinatra-ai/wordpress-assistant-connector", "manage");
@@ -47,7 +64,7 @@ async function registerWebhooksAction(instanceId: string) {
     process.env.NEXT_PUBLIC_APP_URL ??
     process.env.BETTER_AUTH_URL ??
     "http://localhost:3000";
-  const targetUrl = `${cinatraUrl.replace(/\/+$/, "")}/api/webhooks/wordpress`;
+  const targetUrl = `${cinatraUrl.replace(/\/+$/, "")}${WORDPRESS_PUBLISH_WEBHOOK_PATH}`;
   await getWordPressAssistantDeps().registerWebhookSubscription(instance, {
     event_type: "post_published",
     target_url: targetUrl,
@@ -85,7 +102,7 @@ export async function WordPressAssistantSettingsPage() {
   // The WP endpoint returns 409 on duplicate — treated as success — so this is idempotent.
   // Errors are swallowed; the "Register webhooks" button remains as manual retry fallback.
   const instancesForAutoReg = getWordPressAssistantDeps().listInstances();
-  const targetUrlForAutoReg = `${cinatraUrl.replace(/\/+$/, "")}/api/webhooks/wordpress`;
+  const targetUrlForAutoReg = `${cinatraUrl.replace(/\/+$/, "")}${WORDPRESS_PUBLISH_WEBHOOK_PATH}`;
   await Promise.allSettled(
     instancesForAutoReg.map((instance) =>
       getWordPressAssistantDeps().registerWebhookSubscription(instance, {
