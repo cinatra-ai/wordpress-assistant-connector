@@ -13,7 +13,7 @@ project's merged pull request and release-tag history.
 - chore: keep internal planning notes untracked (#6)
 - chore: npm packaging hygiene — files allowlist + source-archive export-ignore (#7)
 - ci: adopt the org ui-design-system gate (#8)
-- serverEntry cutover: register.ts + deps.ts; settings page drops all @/lib imports (cinatra#172 Stage H3) (#9)
+- serverEntry cutover: register.ts + deps.ts; settings page drops all @/lib imports (#9)
 - chore: Configure Renovate (#10)
 - ci(release): grant contents: write + pin reusable workflow to .github HEAD (#12)
 - ci: repin reusable release workflow (immutable-safe decoration + corrected build-input provisioning) (#13)
