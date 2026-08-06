@@ -55,6 +55,7 @@
       "name": "Cinatra"
     },
     "displayName": "WordPress Assistant",
+    "logo": "./cinatra/logo.svg",
     "serverEntry": "./register",
     "requestedHostPorts": [
       "capabilities"
