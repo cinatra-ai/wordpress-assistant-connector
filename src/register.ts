@@ -91,6 +91,8 @@ function buildHostBoundDeps(ctx: ExtensionHostContext): WordPressAssistantConnec
     resolveMcpEndpoint: (siteUrl) => wordpressMcp().resolveEndpoint(siteUrl),
     probeMcpAdapter: (instance) => wordpressMcp().probeAdapter(instance),
     isPrivateUrl: (url) => wordpressMcp().isPrivateUrl(url),
+    // Lazy: nothing of the ambient runtime port is touched at registration.
+    publicBaseUrl: () => ctx.runtime.publicBaseUrl(),
   };
 }
 

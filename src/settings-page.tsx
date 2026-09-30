@@ -53,6 +53,10 @@ async function generateCredentialsAction() {
   revalidatePath("/connectors/cinatra-ai/wordpress-assistant-connector/setup");
 }
 
+function cinatraBaseUrl(): string {
+  return getWordPressAssistantDeps().publicBaseUrl?.() ?? "http://localhost:3000";
+}
+
 async function registerWebhooksAction(instanceId: string) {
   "use server";
   await requireExtensionAction("@cinatra-ai/wordpress-assistant-connector", "manage");
@@ -60,10 +64,7 @@ async function registerWebhooksAction(instanceId: string) {
   if (!instance) {
     throw new Error("WordPress instance not found.");
   }
-  const cinatraUrl =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.BETTER_AUTH_URL ??
-    "http://localhost:3000";
+  const cinatraUrl = cinatraBaseUrl();
   const targetUrl = `${cinatraUrl.replace(/\/+$/, "")}${WORDPRESS_PUBLISH_WEBHOOK_PATH}`;
   await getWordPressAssistantDeps().registerWebhookSubscription(instance, {
     event_type: "post_published",
@@ -90,10 +91,7 @@ export async function WordPressAssistantSettingsPage() {
   // must gate on manage rights, not mere read visibility.
   await requireExtensionAction("@cinatra-ai/wordpress-assistant-connector", "manage");
   const config = getWordPressAssistantDeps().readWidgetAuthConfig();
-  const cinatraUrl =
-    process.env.NEXT_PUBLIC_APP_URL ??
-    process.env.BETTER_AUTH_URL ??
-    "http://localhost:3000";
+  const cinatraUrl = cinatraBaseUrl();
   const generatedAt = config?.generatedAt
     ? new Date(config.generatedAt).toLocaleString()
     : null;
