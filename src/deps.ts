@@ -113,6 +113,8 @@ export interface WordPressAssistantConnectorDeps {
   probeMcpAdapter: (instance: WordPressAssistantInstance) => Promise<WordPressMcpAdapterStatus>;
   /** True for private/local URLs external LLM providers cannot reach. */
   isPrivateUrl: (url: string) => boolean;
+  /** The host's own address from the ambient runtime port; null when the host reports none. */
+  publicBaseUrl?: () => string | null;
 }
 
 const WORDPRESS_ASSISTANT_DEPS_KEY = Symbol.for(
