@@ -1,4 +1,5 @@
 import { defineConfig } from "vitest/config";
+import * as path from "node:path";
 
 // Package-local test config.
 //
@@ -27,6 +28,11 @@ import { defineConfig } from "vitest/config";
 // Schema validation — no DOM is touched by any of the three files. The JSX
 // transform comes from this package's own tsconfig ("jsx": "react-jsx").
 export default defineConfig({
+  resolve: {
+    alias: [
+      { find: "@cinatra-ai/design-primitives", replacement: path.join(__dirname, "src/__tests__/fixtures/design-primitives.tsx") },
+    ],
+  },
   test: {
     environment: "node",
     include: ["src/__tests__/**/*.test.{ts,tsx}", "tests/**/*.test.{ts,tsx}"],

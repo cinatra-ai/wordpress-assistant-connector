@@ -39,20 +39,16 @@ vi.mock("@cinatra-ai/sdk-ui/tabs", () => ({
     ),
 }));
 vi.mock("../copy-button", () => ({ CopyButton: () => null }));
-vi.mock("../components/ui/button", () => ({
+vi.mock("@cinatra-ai/design-primitives", () => ({
   Button: ({ children }: { children?: React.ReactNode }) =>
     React.createElement("span", { "data-slot": "button" }, children),
-}));
-vi.mock("../components/ui/input", () => ({ Input: () => null }));
-vi.mock("../components/ui/field", () => ({
+  Input: () => null,
   FieldGroup: ({ children }: { children?: React.ReactNode }) =>
     React.createElement("div", null, children),
   Field: ({ children }: { children?: React.ReactNode }) =>
     React.createElement("div", null, children),
   FieldLabel: ({ children }: { children?: React.ReactNode }) =>
     React.createElement("label", null, children),
-}));
-vi.mock("../components/ui/badge", () => ({
   Badge: ({ children }: { children?: React.ReactNode }) =>
     React.createElement("span", null, children),
 }));
