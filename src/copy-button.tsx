@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
-import { Button } from "./components/ui/button";
+import { Button } from "@cinatra-ai/design-primitives";
 
 export function CopyButton({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);

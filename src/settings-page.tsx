@@ -2,9 +2,7 @@ import "server-only";
 import type { Metadata } from "next";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
-import { Button } from "./components/ui/button";
-import { Input } from "./components/ui/input";
-import { FieldGroup, Field, FieldLabel } from "./components/ui/field";
+import { Badge, Button, Input, FieldGroup, Field, FieldLabel } from "@cinatra-ai/design-primitives";
 import { ConnectorSetupPage } from "@cinatra-ai/sdk-ui/connector-setup-page";
 // Shared design-system Tabs primitive (cinatra-ai/cinatra#1103) — own subpath
 // only, deliberately NOT re-exported from `/marketplace` (route-graph ratchet).
@@ -23,7 +21,6 @@ import {
   type WordPressMcpAdapterStatus,
   type WordPressWebhookSubscription,
 } from "./deps";
-import { Badge } from "./components/ui/badge";
 import { CopyButton } from "./copy-button";
 
 export const dynamic = "force-dynamic";
